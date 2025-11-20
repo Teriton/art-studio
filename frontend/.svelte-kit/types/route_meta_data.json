@@ -1,0 +1,24 @@
+{
+	"/(user)": [],
+	"/(registration)": [],
+	"/(app)": [
+		"src/routes/(app)/+page.server.ts"
+	],
+	"/": [],
+	"/admin": [],
+	"/admin/masters": [],
+	"/admin/profile": [],
+	"/admin/users": [],
+	"/admin/workshops": [],
+	"/(registration)/login": [],
+	"/(registration)/logout": [],
+	"/(user)/orders": [],
+	"/(user)/profile": [],
+	"/(user)/schedule": [],
+	"/(user)/schedule/[id]": [
+		"src/routes/(user)/schedule/[id]/+page.server.ts"
+	],
+	"/(registration)/signup": [
+		"src/routes/(registration)/signup/+page.server.ts"
+	]
+}
