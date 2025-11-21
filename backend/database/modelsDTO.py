@@ -1,6 +1,6 @@
 import datetime
 from pydantic import BaseModel
-from .modelsORM import Status
+from .modelsORM import Status, PaymentMethod
 
 class WorkshopAddDTO(BaseModel):
     master_id: int
@@ -117,5 +117,24 @@ class OrderAddDTO(BaseModel):
 class OrderDTO(OrderAddDTO):
     id: int
 
-class OrderSession(OrderDTO):
+
+class OrderSessionDTO(OrderDTO):
     session: "ScheduleDTO"
+
+
+class PaymentAddDTO(BaseModel):
+    user_id: int
+    order_id: int
+    status: Status
+    fee: float
+    payment_method: PaymentMethod
+
+class PaymentDTO(PaymentAddDTO):
+    id: int
+
+class PaymentRelDTO(PaymentDTO):
+    user: "UserDTO"
+    order: "OrderDTO"
+
+class PaymentOrderDTO(PaymentDTO):
+    order: "OrderSessionDTO"

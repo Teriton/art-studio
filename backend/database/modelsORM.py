@@ -130,8 +130,6 @@ class ScheduleORM(Base):
         back_populates="session"
     )
 
-    orders: Mapped[list["OrderORM"]] = relationship(back_populates="session")
-
 class OrderORM(Base):
     __tablename__ = "orders"
 
@@ -143,6 +141,10 @@ class OrderORM(Base):
 
     session: Mapped["ScheduleORM"] = relationship(
         back_populates="orders"
+    )
+
+    payment: Mapped["PaymentORM"] = relationship(
+        back_populates="order"
     )
 
 
@@ -158,6 +160,10 @@ class UserORM(Base):
     psw: Mapped[str]
     admin: Mapped[bool] 
 
+    payments: Mapped[list["PaymentORM"]] = relationship(
+        back_populates="user"
+    )
+
 
 class PaymentORM(Base):
     __tablename__ = "payments"
@@ -168,3 +174,14 @@ class PaymentORM(Base):
     status: Mapped[Status] = mapped_column(SQLEnum(Status, name="status"))
     fee: Mapped[float]
     payment_method: Mapped[PaymentMethod] = mapped_column(SQLEnum(PaymentMethod, name="paymentmethod"))
+
+    user: Mapped["UserORM"] = relationship(
+        back_populates="payments"
+    )
+
+    order: Mapped["OrderORM"] = relationship(
+        back_populates="payment"
+    )
+
+
+

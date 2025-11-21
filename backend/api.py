@@ -40,6 +40,19 @@ def create_fastapi_app():
         if workshop == None:
             return {"message":"workshop not found"}
         return workshop
+
+    @app.get("/orders", tags=["Заказы"])
+    async def get_orders(
+        current_user: Annotated[str ,Depends(get_current_active_user)]
+    ):
+        orders = await AsyncORM.get_orders(current_user.id)
+        return orders
+    @app.get("/payments", tags=["Заказы"])
+    async def get_payments(
+        current_user: Annotated[str ,Depends(get_current_active_user)]
+    ):
+        payments = await AsyncORM.get_payments(current_user.id)
+        return payments
     
     @app.get("/bookWorkshop", tags=["Мастерклассы"])
     async def book_session(

@@ -28,7 +28,8 @@ function organizeSchedulesByDate(schedules: ScheduleDTO[]): Map<string, Schedule
 	return result;
 }
 
-export async function load({ params }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function load({ params }: {params:any}) {
 	let error = '';
 	const workshopId = parseInt(params.id);
 

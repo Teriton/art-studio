@@ -68,7 +68,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 async def get_current_active_user(
     token: Annotated[str, Depends(get_token_from_request)],
-):
+) -> modelsDTO.UserDTO:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         login = payload.get("sub")

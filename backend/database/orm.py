@@ -355,3 +355,31 @@ class AsyncORM:
                 "order_id": order_id,
                 "payment_id": payment_id,
             }
+
+    @staticmethod
+    async def get_orders(user_id:int):
+        async with async_session_factory() as session:
+            stmt = (
+                select(OrderORM)
+                .options(joinedload(OrderORM.session))
+                .filter_by(user_id = user_id)
+            )
+            res = await session.execute(stmt)
+            result_orm = res.scalars().all()
+            result_dto = [modelsDTO.OrderSessionDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            print(f"{result_dto=}")
+            return result_dto
+
+    @staticmethod
+    async def get_payments(user_id:int):
+        async with async_session_factory() as session:
+            stmt = (
+                select(PaymentORM)
+                .options(joinedload(PaymentORM.order).joinedload(OrderORM.session))
+                .filter_by(user_id = user_id)
+            )
+            res = await session.execute(stmt)
+            result_orm = res.scalars().all()
+            result_dto = [modelsDTO.PaymentOrderDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            print(f"{result_dto=}")
+            return result_dto
