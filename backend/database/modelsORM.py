@@ -144,7 +144,8 @@ class OrderORM(Base):
     )
 
     payment: Mapped["PaymentORM"] = relationship(
-        back_populates="order"
+        back_populates="order",
+        cascade="delete-orphan, delete"
     )
 
 

@@ -1,23 +1,23 @@
 <script lang="ts">
-	import { PaymentMethod, Status, type PaymentOrderDTO } from "$lib/models";
+	import { PaymentMethod, Status, type OrderSessionDTO, type PaymentOrderDTO } from "$lib/models";
 	import { onMount } from "svelte";
 	import SectionWraper from "../SectionWraper.svelte";
 	import OrderCard from "./OrderCard.svelte";
-	import { fetchPayments } from "$lib/api/api";
+	import { fetchOrders, fetchPayments, cancelOrder } from "$lib/api/api";
 	import { goto } from "$app/navigation";
 
 	let loading = $state(false);
 	let error: string | null = $state(null);
-	let payments: PaymentOrderDTO[] | null = $state([]);
+	let orders: OrderSessionDTO[] | null = $state([]);
 	// let selectedWorkshop: WorkshopRelDTO | null = $state(null);
 
-	onMount(async () => {
+	async function fetchData() {
 		loading = true;
 		error = null;
 		try {
 			// Здесь должен быть реальный вызов API, например:
-			payments = await fetchPayments();
-			if (payments === null) {
+			orders = await fetchOrders();
+			if (orders === null) {
 				goto('/login');
 				return;
 			}
@@ -28,7 +28,19 @@
 		} finally {
 			loading = false;
 		}
+  	}
+
+	onMount(async () => {
+		await fetchData();
 	});
+
+	async function cancelOrderAction(order_id: number) {
+
+		// if (selectedSession === null) return;
+		const res = await cancelOrder(order_id)
+		if (res === null) goto("/login");
+		else await fetchData();
+	}
 
     // const mockPaymentOrderDTO: PaymentOrderDTO = {
 	// 	id: 101,
@@ -66,6 +78,7 @@
 	// let payments: PaymentOrderDTO[] = [];
 	// payments.push(mockPaymentOrderDTO)
 
+	
 
 </script>
 
@@ -78,8 +91,8 @@
 			<hr class="my-4"/>
 			{#if !loading}
 				<div class="flex flex-col gap-6">
-					{#each payments as payment}
-						<OrderCard {payment}></OrderCard>
+					{#each orders as order}
+						<OrderCard {order} pay={()=>{}} cancel={async ()=>{await cancelOrderAction(order.id)}}></OrderCard>
 					{/each}
 				</div>
 			{/if}

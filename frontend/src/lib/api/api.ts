@@ -1,5 +1,6 @@
 import type {
 	MasterDTO,
+	OrderSessionDTO,
 	PaymentOrderDTO,
 	Seats,
 	UserAddDTO,
@@ -145,4 +146,34 @@ export async function fetchPayments(): Promise<PaymentOrderDTO[]| null> {
 	}
 	const data = await res.json()
 	return data as PaymentOrderDTO[];
+}
+
+export async function fetchOrders(): Promise<OrderSessionDTO[]| null> {
+	const res = await fetch(`http://127.0.0.1:8000/orders`, {
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include'
+	})
+	if (res.status === 401) {
+		return null; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	const data = await res.json()
+	return data as OrderSessionDTO[];
+}
+
+export async function cancelOrder(order_id: number): Promise<boolean | null> {
+	const res = await fetch(`http://127.0.0.1:8000/order/${order_id}`, {
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include'
+	})
+	if (res.status === 401) {
+		return null; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
+
 }

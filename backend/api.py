@@ -47,6 +47,7 @@ def create_fastapi_app():
     ):
         orders = await AsyncORM.get_orders(current_user.id)
         return orders
+    
     @app.get("/payments", tags=["Заказы"])
     async def get_payments(
         current_user: Annotated[str ,Depends(get_current_active_user)]
@@ -54,12 +55,24 @@ def create_fastapi_app():
         payments = await AsyncORM.get_payments(current_user.id)
         return payments
     
-    @app.get("/bookWorkshop", tags=["Мастерклассы"])
-    async def book_session(
-        res: Annotated[str ,Depends(get_current_active_user_login)]
+    @app.delete("/order/{order_id}", tags=["Заказы"])
+    async def delete_order(
+        current_user: Annotated[str ,Depends(get_current_active_user)],
+        order_id: int
     ):
-        workshops = await AsyncORM.get_workshops()
-        return workshops
+        try:
+            result = await AsyncORM.cancel_order(current_user.id,order_id)
+            return JSONResponse(
+                {
+                    "success": result,
+                }
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Canceling failed: {str(e)}")
+
+    
     
     @app.get("/masters", tags=["Мастера"])
     async def get_masters():

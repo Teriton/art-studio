@@ -361,7 +361,7 @@ class AsyncORM:
         async with async_session_factory() as session:
             stmt = (
                 select(OrderORM)
-                .options(joinedload(OrderORM.session))
+                .options(joinedload(OrderORM.session).joinedload(ScheduleORM.workshop))
                 .filter_by(user_id = user_id)
             )
             res = await session.execute(stmt)
@@ -383,3 +383,24 @@ class AsyncORM:
             result_dto = [modelsDTO.PaymentOrderDTO.model_validate(row, from_attributes=True) for row in result_orm]
             print(f"{result_dto=}")
             return result_dto
+        
+    @staticmethod
+    async def cancel_order(user_id: int, order_id: int) -> bool:
+        async with async_session_factory() as session:
+            # Находим платеж, принадлежащий пользователю и связанному с order_id
+            stmt = (
+                select(OrderORM)
+                .where(
+                    OrderORM.user_id == user_id,
+                    OrderORM.id == order_id
+                )
+            )
+            result = await session.execute(stmt)
+            order = result.scalar_one_or_none()
+
+            if order is None:
+                return False  # Платёж не найден или не принадлежит пользователю
+
+            await session.delete(order)
+            await session.commit()
+            return True
