@@ -3,11 +3,11 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header/Header.svelte';
 	import { openModal } from '$lib/stores/OpenModal.svelte';
-	import Modal from '$lib/components/Modal.svelte';
 	import { onMount } from 'svelte';
 	import { userRole } from '$lib/stores/UserRole.svelte';
 	import { fetchActiveUser } from '$lib/api/api';
 	import { page } from '$app/state';
+	import Modal from '$lib/components/Modal/Modal.svelte';
 
 	let { children, data } = $props();
 	function reroute(href: string) {

@@ -375,7 +375,7 @@ class AsyncORM:
         async with async_session_factory() as session:
             stmt = (
                 select(PaymentORM)
-                .options(joinedload(PaymentORM.order).joinedload(OrderORM.session))
+                .options(joinedload(PaymentORM.order).joinedload(OrderORM.session).joinedload(ScheduleORM.workshop))
                 .filter_by(user_id = user_id)
             )
             res = await session.execute(stmt)

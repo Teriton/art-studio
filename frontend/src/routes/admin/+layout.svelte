@@ -2,11 +2,11 @@
 	import '../../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { openModal } from '$lib/stores/OpenModal.svelte';
-	import Modal from '$lib/components/Modal.svelte';
 	import { onMount } from 'svelte';
 	import { fetchActiveUser } from '$lib/api/api';
 	import HeaderUserTabs from '$lib/components/Header/HeaderUserTabs.svelte';
 	import HeaderAdminTabs from '$lib/components/Header/HeaderAdminTabs.svelte';
+	import Modal from '$lib/components/Modal/Modal.svelte';
 
 	let { children, data } = $props();
 	function reroute(href: string) {

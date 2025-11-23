@@ -119,7 +119,7 @@ class OrderDTO(OrderAddDTO):
 
 
 class OrderSessionDTO(OrderDTO):
-    session: "ScheduleDTO"
+    session: "ScheduleWorkhopDTO"
 
 
 class PaymentAddDTO(BaseModel):

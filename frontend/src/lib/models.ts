@@ -115,7 +115,7 @@ export interface MaterialRelDTO extends MaterialDTO {
 
 export interface ScheduleAddDTO {
 	workshop_id: number;
-	date: Date;
+	date: string;
 	location: string;
 	numberOfSeats: number;
 }
@@ -127,4 +127,53 @@ export interface ScheduleDTO extends ScheduleAddDTO {
 export interface Seats {
 	allSeats: number;
 	occupiedSeats: number;
+}
+
+export interface ScheduleOrdersDTO extends ScheduleDTO {
+  orders: OrderDTO[];
+}
+
+export interface ScheduleWorkhopDTO extends ScheduleDTO{
+    workshop: WorkshopDTO
+}
+
+export interface OrderAddDTO {
+  user_id: number;
+  schedule_id: number;
+  date: string; // ISO string
+  status: Status;
+}
+
+export interface OrderDTO extends OrderAddDTO {
+  id: number;
+}
+
+export interface OrderSessionDTO extends OrderDTO {
+  session: ScheduleWorkhopDTO;
+}
+
+export enum PaymentMethod {
+  card = "карта",
+  cash = "налик"
+}
+
+export interface PaymentAddDTO {
+  user_id: number;
+  order_id: number;
+  status: Status;
+  fee: number;
+  payment_method: PaymentMethod;
+}
+
+export interface PaymentDTO extends PaymentAddDTO {
+  id: number;
+}
+
+export interface PaymentRelDTO extends PaymentDTO {
+  user: UserDTO;
+  order: OrderDTO;
+}
+
+export interface PaymentOrderDTO extends PaymentDTO {
+  order: OrderSessionDTO;
 }
