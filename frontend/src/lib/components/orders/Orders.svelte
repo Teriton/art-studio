@@ -55,7 +55,7 @@
 				{:else}
 					<div class="flex flex-col gap-6">
 						{#each orders as order}
-							<OrderCard {order} pay={()=>{}} cancel={async ()=>{await cancelOrderAction(order.id)}}></OrderCard>
+							<OrderCard {order} pay={()=>{goto(`/orders/${order.id}`)}} cancel={async ()=>{await cancelOrderAction(order.id)}}></OrderCard>
 						{/each}
 					</div>
 				{/if}

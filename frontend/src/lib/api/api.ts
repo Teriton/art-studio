@@ -198,7 +198,7 @@ export async function makePayment(order_id: number, payment_method: PaymentMetho
 
 
 export async function fetchPaymentByOrderId(orderId: number): Promise<PaymentDTO | null> {
-	const res = await fetch(`http://127.0.0.1:8000/order/${orderId}`, {
+	const res = await fetch(`http://127.0.0.1:8000/payment_by_order/${orderId}`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',

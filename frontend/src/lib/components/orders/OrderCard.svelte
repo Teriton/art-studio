@@ -25,12 +25,17 @@
     </div>
     <div class="flex gap-3 justify-centersss text-2xl md:text-xl font-light items-center mt-3">
         {#if order.payment.status == PaymentStatus.unpaid}
-            <button class=" bg-green-600 h-20 md:h-auto flex-1">Оплатить</button>
+            <button class=" bg-green-600 h-20 md:h-auto flex-1" onclick={async ()=>{
+                        await pay()
+                        }}>Оплатить</button>
             <button class=" bg-red-600 h-20 md:h-auto text-white flex-1" onclick={()=>{modal = true}}>Отменить</button>
         {:else}
-            <h2 class="flex rounded-xl p-3 border-2 border-green-600 h-20 md:h-auto flex-1 items-center justify-center">Оплачено</h2>
-        {/if}
-    </div>
+			<div class="flex flex-col md:flex-row rounded-xl p-3 border-2 border-green-600  md:h-auto flex-1">
+				<h2 class="flex md:h-auto flex-1 items-center justify-center">Оплачено</h2>
+				<h2 class="flex  md:h-auto flex-1 items-center justify-center">Способ оплаты: {order.payment.payment_method == PaymentMethod.card? "картой" : "на месте"}</h2>
+			</div>
+			{/if}
+		</div>
 </div>
 
 
