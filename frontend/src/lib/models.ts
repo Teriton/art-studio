@@ -5,6 +5,12 @@ export enum Status {
 	// Добавь остальные значения, если есть
 }
 
+export enum PaymentStatus{
+	paid = "Опалчен",
+	unpaid = "Не оплачен"
+}
+
+
 export interface WorkshopAddDTO {
 	master_id: number;
 	technique_id: number;
@@ -152,6 +158,11 @@ export interface OrderSessionDTO extends OrderDTO {
   session: ScheduleWorkhopDTO;
 }
 
+export interface OrderRelsDTO extends OrderDTO {
+	session: ScheduleWorkhopDTO;
+	payment: PaymentDTO;
+}
+
 export enum PaymentMethod {
   card = "карта",
   cash = "налик"
@@ -160,7 +171,7 @@ export enum PaymentMethod {
 export interface PaymentAddDTO {
   user_id: number;
   order_id: number;
-  status: Status;
+  status: PaymentStatus;
   fee: number;
   payment_method: PaymentMethod;
 }

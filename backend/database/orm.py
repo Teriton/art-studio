@@ -2,7 +2,7 @@ from database.database import async_engine, async_session_factory, Base
 from database.modelsORM import (
     WorkshopORM, MasterORM, Status,
     TechniqueORM, SetOfMaterialORM, MaterialORM,
-    ScheduleORM, UserORM, OrderORM, PaymentORM, PaymentMethod
+    ScheduleORM, UserORM, OrderORM, PaymentORM, PaymentMethod, PaymentStatus
     )
 from datetime import * # type: ignore
 from sqlalchemy import select, func
@@ -133,7 +133,7 @@ class AsyncORM:
                 OrderORM(user_id = 3, schedule_id = 2, status= Status.active ),
             ]
             payments = [
-                PaymentORM(user_id = 1, order_id = 1, status = Status.active ,fee =20.0, payment_method=PaymentMethod.card)
+                PaymentORM(user_id = 1, order_id = 1, status = PaymentStatus.unpaid ,fee =20.0, payment_method=PaymentMethod.card)
             ]
             session.add_all(masters)
             session.add_all(techniques)
@@ -338,7 +338,7 @@ class AsyncORM:
             payment = PaymentORM(
                 user_id=user_id,
                 order_id=order.id,
-                status=Status.active,
+                status=PaymentStatus.unpaid,
                 fee=workshop_fee,
                 payment_method=PaymentMethod.card 
             )
@@ -361,12 +361,12 @@ class AsyncORM:
         async with async_session_factory() as session:
             stmt = (
                 select(OrderORM)
-                .options(joinedload(OrderORM.session).joinedload(ScheduleORM.workshop))
+                .options(joinedload(OrderORM.session).joinedload(ScheduleORM.workshop), joinedload(OrderORM.payment))
                 .filter_by(user_id = user_id)
             )
             res = await session.execute(stmt)
             result_orm = res.scalars().all()
-            result_dto = [modelsDTO.OrderSessionDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            result_dto = [modelsDTO.OrderRelsDTO.model_validate(row, from_attributes=True) for row in result_orm]
             print(f"{result_dto=}")
             return result_dto
 

@@ -18,23 +18,25 @@ export const nodes = [
 	() => import('./nodes/14'),
 	() => import('./nodes/15'),
 	() => import('./nodes/16'),
-	() => import('./nodes/17')
+	() => import('./nodes/17'),
+	() => import('./nodes/18')
 ];
 
 export const server_loads = [];
 
 export const dictionary = {
 		"/(app)": [~6,[2]],
-		"/admin/masters": [14,[5]],
-		"/admin/profile": [15,[5]],
-		"/admin/users": [16,[5]],
-		"/admin/workshops": [17,[5]],
+		"/admin/masters": [15,[5]],
+		"/admin/profile": [16,[5]],
+		"/admin/users": [17,[5]],
+		"/admin/workshops": [18,[5]],
 		"/(registration)/login": [7,[3]],
 		"/(registration)/logout": [8,[3]],
 		"/(user)/orders": [10,[4]],
-		"/(user)/profile": [11,[4]],
-		"/(user)/schedule": [12,[4]],
-		"/(user)/schedule/[id]": [~13,[4]],
+		"/(user)/orders/[id]": [11,[4]],
+		"/(user)/profile": [12,[4]],
+		"/(user)/schedule": [13,[4]],
+		"/(user)/schedule/[id]": [~14,[4]],
 		"/(registration)/signup": [~9,[3]]
 	};
 

@@ -13,6 +13,7 @@
 	"/(registration)/login": [],
 	"/(registration)/logout": [],
 	"/(user)/orders": [],
+	"/(user)/orders/[id]": [],
 	"/(user)/profile": [],
 	"/(user)/schedule": [],
 	"/(user)/schedule/[id]": [

@@ -23,6 +23,10 @@ class PaymentMethod(enum.Enum):
     card = "карта"
     cash = "налик"
 
+class PaymentStatus(enum.Enum):
+    paid = "Опалчен"
+    unpaid = "Не оплачен"
+
 class MasterORM(Base):
     __tablename__= "masters"
 
@@ -47,7 +51,7 @@ class WorkshopORM(Base):
     dificulty: Mapped[str]
     duration: Mapped[int]
     fee: Mapped[float]
-    status: Mapped[Status] = mapped_column(SQLEnum(Status, name="status"))
+    status: Mapped[Status]
 
     master: Mapped["MasterORM"] = relationship(
         back_populates="workshops"
@@ -137,7 +141,7 @@ class OrderORM(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     schedule_id: Mapped[int] = mapped_column(ForeignKey("schedule.id", ondelete="CASCADE"))
     date: Mapped[created_at]
-    status: Mapped[Status] = mapped_column(SQLEnum(Status, name="status"))
+    status: Mapped[Status]
 
     session: Mapped["ScheduleORM"] = relationship(
         back_populates="orders"
@@ -172,9 +176,9 @@ class PaymentORM(Base):
     id: Mapped[intpk] 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"))
-    status: Mapped[Status] = mapped_column(SQLEnum(Status, name="status"))
+    status: Mapped[PaymentStatus]
     fee: Mapped[float]
-    payment_method: Mapped[PaymentMethod] = mapped_column(SQLEnum(PaymentMethod, name="paymentmethod"))
+    payment_method: Mapped[PaymentMethod]
 
     user: Mapped["UserORM"] = relationship(
         back_populates="payments"

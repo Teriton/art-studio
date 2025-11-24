@@ -1,6 +1,6 @@
 import type {
 	MasterDTO,
-	OrderSessionDTO,
+	OrderRelsDTO,
 	PaymentOrderDTO,
 	Seats,
 	UserAddDTO,
@@ -148,7 +148,7 @@ export async function fetchPayments(): Promise<PaymentOrderDTO[]| null> {
 	return data as PaymentOrderDTO[];
 }
 
-export async function fetchOrders(): Promise<OrderSessionDTO[]| null> {
+export async function fetchOrders(): Promise<OrderRelsDTO[]| null> {
 	const res = await fetch(`http://127.0.0.1:8000/orders`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
@@ -160,7 +160,7 @@ export async function fetchOrders(): Promise<OrderSessionDTO[]| null> {
 		throw new Error(`Ошибка ${res.text}`);
 	}
 	const data = await res.json()
-	return data as OrderSessionDTO[];
+	return data as OrderRelsDTO[];
 }
 
 export async function cancelOrder(order_id: number): Promise<boolean | null> {
