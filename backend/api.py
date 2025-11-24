@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from database.orm import AsyncORM
 from database import modelsDTO
 from typing import Annotated
-from models import Token
+from models import PaymentMethodModel, Token
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES,create_access_token, get_current_active_user, get_current_active_user_login, get_token_from_request, password_hash
@@ -72,7 +72,37 @@ def create_fastapi_app():
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Canceling failed: {str(e)}")
 
-    
+    @app.get("/payment_by_order/{order_id}", tags=["Заказы"])
+    async def get_payment(
+        current_user: Annotated[str ,Depends(get_current_active_user)],
+        order_id: int
+    ):
+        try:
+            result = await AsyncORM.get_payment_by_order(current_user.id,order_id)
+            return result
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Canceling failed: Hello")
+        
+    @app.post("/order/{order_id}", tags=["Заказы"])
+    async def make_payment(
+        payment_method: PaymentMethodModel,
+        current_user: Annotated[str ,Depends(get_current_active_user)],
+        order_id: int
+    ):
+        try:
+            result = await AsyncORM.make_payment(current_user.id,order_id, payment_method.payment_method)
+            return  JSONResponse(
+                {
+                    "success": result,
+                }
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Canceling failed: ${str(e)}")
+  
     
     @app.get("/masters", tags=["Мастера"])
     async def get_masters():
@@ -181,6 +211,7 @@ def create_fastapi_app():
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Booking failed: {str(e)}")
+        
 
 
 

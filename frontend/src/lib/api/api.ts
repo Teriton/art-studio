@@ -1,6 +1,8 @@
 import type {
 	MasterDTO,
 	OrderRelsDTO,
+	PaymentDTO,
+	PaymentMethod,
 	PaymentOrderDTO,
 	Seats,
 	UserAddDTO,
@@ -175,5 +177,37 @@ export async function cancelOrder(order_id: number): Promise<boolean | null> {
 		throw new Error(`Ошибка ${res.text}`);
 	}
 	return true
+}
 
+export async function makePayment(order_id: number, payment_method: PaymentMethod): Promise<boolean | null> {
+	const res = await fetch(`http://127.0.0.1:8000/order/${order_id}`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify({
+			payment_method: payment_method
+		})
+	})
+	if (res.status === 401) {
+		return null; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
+}
+
+
+export async function fetchPaymentByOrderId(orderId: number): Promise<PaymentDTO | null> {
+	const res = await fetch(`http://127.0.0.1:8000/order/${orderId}`, {
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+		if (res.status === 401) {
+		return null; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	const data = await res.json();
+	return data as PaymentDTO;
 }

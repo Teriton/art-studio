@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from database import modelsDTO
 
 class Token(BaseModel):
     access_token: str
@@ -7,3 +8,8 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     login: str | None = None
+
+
+class PaymentMethodModel(BaseModel):
+    payment_method: modelsDTO.PaymentMethod
+    

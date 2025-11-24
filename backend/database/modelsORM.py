@@ -14,16 +14,16 @@ updateds_at = Annotated[datetime.datetime, mapped_column(
     onupdate= datetime.datetime.utcnow
     )]
 
-class Status(enum.Enum):
+class Status(str, enum.Enum):
     active = "активный"
     unactive = "неактивный"
     canceled = "отмененный"
 
-class PaymentMethod(enum.Enum):
+class PaymentMethod(str, enum.Enum):
     card = "карта"
     cash = "налик"
 
-class PaymentStatus(enum.Enum):
+class PaymentStatus(str, enum.Enum):
     paid = "Опалчен"
     unpaid = "Не оплачен"
 

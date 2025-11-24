@@ -33,7 +33,7 @@ export const dictionary = {
 		"/(registration)/login": [7,[3]],
 		"/(registration)/logout": [8,[3]],
 		"/(user)/orders": [10,[4]],
-		"/(user)/orders/[id]": [11,[4]],
+		"/(user)/orders/[id]": [~11,[4]],
 		"/(user)/profile": [12,[4]],
 		"/(user)/schedule": [13,[4]],
 		"/(user)/schedule/[id]": [~14,[4]],

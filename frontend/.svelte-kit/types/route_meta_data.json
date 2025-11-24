@@ -13,7 +13,9 @@
 	"/(registration)/login": [],
 	"/(registration)/logout": [],
 	"/(user)/orders": [],
-	"/(user)/orders/[id]": [],
+	"/(user)/orders/[id]": [
+		"src/routes/(user)/orders/[id]/+page.server.ts"
+	],
 	"/(user)/profile": [],
 	"/(user)/schedule": [],
 	"/(user)/schedule/[id]": [

@@ -133,7 +133,8 @@ class AsyncORM:
                 OrderORM(user_id = 3, schedule_id = 2, status= Status.active ),
             ]
             payments = [
-                PaymentORM(user_id = 1, order_id = 1, status = PaymentStatus.unpaid ,fee =20.0, payment_method=PaymentMethod.card)
+                PaymentORM(user_id = 1, order_id = 1, status = PaymentStatus.unpaid ,fee =20.0, payment_method=PaymentMethod.card),
+                PaymentORM(user_id = 1, order_id = 4, status = PaymentStatus.unpaid ,fee =20.0, payment_method=PaymentMethod.card)
             ]
             session.add_all(masters)
             session.add_all(techniques)
@@ -402,5 +403,51 @@ class AsyncORM:
                 return False  # Платёж не найден или не принадлежит пользователю
 
             await session.delete(order)
+            await session.commit()
+            return True
+        
+
+    @staticmethod
+    async def get_payment_by_order(user_id: int, order_id: int) -> modelsDTO.PaymentDTO | None:
+        async with async_session_factory() as session:
+            stmt = (
+                select(PaymentORM)
+                .where(
+                    PaymentORM.user_id == user_id,
+                    PaymentORM.order_id == order_id
+                )
+            )
+            result = await session.execute(stmt)
+            result_orm = result.scalar_one_or_none()
+            if not result_orm:
+                return None
+            print(f"{result_orm=}")
+            result_dto = modelsDTO.PaymentDTO.model_validate(result_orm, from_attributes=True)
+            print(f"{result_dto=}")
+            return result_dto
+
+    @staticmethod
+    async def make_payment(user_id: int, order_id: int, payment_method: PaymentMethod) -> bool:
+        async with async_session_factory() as session:
+            # Находим платеж, принадлежащий пользователю и связанному с order_id
+            stmt = (
+                select(PaymentORM)
+                .where(
+                    PaymentORM.user_id == user_id,
+                    PaymentORM.order_id == order_id
+                )
+                .with_for_update()  # Опционально: блокировка строки для избежания гонок
+            )
+            result = await session.execute(stmt)
+            payment = result.scalar_one_or_none()
+
+            if payment is None:
+                return False  # Платёж не найден
+
+            # Обновляем статус и способ оплаты
+            payment.status = PaymentStatus.paid
+            payment.payment_method = payment_method
+
+            session.add(payment)
             await session.commit()
             return True
