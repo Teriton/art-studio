@@ -41,9 +41,7 @@
 	</div>
 {:else}
 	<SectionWraper>
-		<div class="mx-auto w-full mt-10 p-6">
-			<div class="mb-6 flex items-center justify-between">
-            </div>
+		<div class="mx-auto w-full mt-16 p-6">
 			{#if error || users ==null}
 				<div class="rounded bg-red-100 p-4 text-red-700">{error}</div>
 			{:else}
