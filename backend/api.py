@@ -13,9 +13,10 @@ from connectionManager import connection_manager
 import json
 
 async def broadcast_users():
-    users = await AsyncORM.get_users()
-    users_json = json.dumps([u.model_dump() for u in users], separators=(",", ":"))
-    await connection_manager.broadcast(users_json)
+    if len(connection_manager.active_connections):
+        users = await AsyncORM.get_users()
+        users_json = json.dumps([u.model_dump() for u in users], separators=(",", ":"))
+        await connection_manager.broadcast(users_json)
 
 def create_fastapi_app():
     app = FastAPI(title="FastAPI")
@@ -221,13 +222,36 @@ def create_fastapi_app():
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Booking failed: {str(e)}")
         
+    @app.delete("/admin/user")
+    async def delete_user_admin(
+        user_id: int,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+        ):  
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+        print("hello user")
+        if await AsyncORM.delte_user(user_id):
+            await broadcast_users()
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+        
+    
+
     @app.websocket("/admin/users")
     async def admin_users(
         websocket: WebSocket,
         current_user: Annotated[modelsDTO.UserDTO,Depends(get_current_active_user_websocket)]
         ):
         if not current_user.admin:
-            raise HTTPException(status_code=400, detail="Not allowd")
+            raise HTTPException(status_code=401, detail="Not allowd")
         await connection_manager.connect(websocket)
         try:
             while True:

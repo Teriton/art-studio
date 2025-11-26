@@ -203,11 +203,25 @@ export async function fetchPaymentByOrderId(orderId: number): Promise<PaymentDTO
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
 	});
-		if (res.status === 401) {
+	if (res.status === 401) {
 		return null; // Нет активного пользователя
 	} else if (!res.ok) {
 		throw new Error(`Ошибка ${res.text}`);
 	}
 	const data = await res.json();
 	return data as PaymentDTO;
+}
+
+export async function delteUserById(userId:number): Promise<boolean> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/user?user_id=${userId}`,{
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (res.status === 401) {
+		return false; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
 }

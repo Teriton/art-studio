@@ -166,7 +166,8 @@ class UserORM(Base):
     admin: Mapped[bool] 
 
     payments: Mapped[list["PaymentORM"]] = relationship(
-        back_populates="user"
+        back_populates="user",
+        cascade="all, delete-orphan"
     )
 
 

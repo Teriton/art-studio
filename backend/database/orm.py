@@ -460,3 +460,16 @@ class AsyncORM:
             result_orm = res.scalars().all()
             result_dto = [modelsDTO.UserDTO.model_validate(row, from_attributes=True) for row in result_orm]
             return result_dto
+        
+    @staticmethod
+    async def delte_user(user_id: int) -> bool:
+        async with async_session_factory() as session:
+            user = await session.get(UserORM, user_id)
+            
+            if not user:
+                return False
+            
+            await session.delete(user)
+            await session.commit()
+            return True
+
