@@ -1,5 +1,6 @@
+from http.cookies import BaseCookie
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Cookie, Depends, HTTPException, WebSocketException, status, Request
 from pwdlib import PasswordHash
 from database.orm import AsyncORM
 from datetime import datetime, timedelta, timezone
@@ -44,6 +45,14 @@ async def get_token_from_request(request: Request) -> str:
 
     raise credentials_exception
 
+async def get_token_from_websocket(access_token: Annotated[str | None, Cookie()] = None):
+    print("Nety pidr")
+    if not access_token: 
+        print("Nety cookie")
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)  
+    return access_token
+
+
 def verify_password(plain_password, hashed_password):
     return password_hash.verify(plain_password,hashed_password)
 
@@ -66,9 +75,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode,SECRET_KEY,algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_active_user(
-    token: Annotated[str, Depends(get_token_from_request)],
-) -> modelsDTO.UserDTO:
+async def get_user_from_token(token:str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         login = payload.get("sub")
@@ -82,6 +89,16 @@ async def get_current_active_user(
     if user is None:
         raise credentials_exception
     return user
+
+async def get_current_active_user(
+    token: Annotated[str, Depends(get_token_from_request)],
+) -> modelsDTO.UserDTO:
+    return await get_user_from_token(token)
+
+async def get_current_active_user_websocket(
+        token: Annotated[str, Depends(get_token_from_websocket)],
+) -> modelsDTO.UserDTO:
+    return await get_user_from_token(token)
 
 async def get_current_active_user_login(
     token: Annotated[str, Depends(get_token_from_request)],

@@ -451,3 +451,12 @@ class AsyncORM:
             session.add(payment)
             await session.commit()
             return True
+        
+    @staticmethod
+    async def get_users() -> list[modelsDTO.UserDTO]:
+        async with async_session_factory() as session:
+            stmt = select(UserORM)
+            res = await session.execute(stmt)
+            result_orm = res.scalars().all()
+            result_dto = [modelsDTO.UserDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            return result_dto

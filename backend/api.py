@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from fastapi import FastAPI, Depends, HTTPException, Request, status
+from fastapi import Cookie, FastAPI, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from database.orm import AsyncORM
@@ -8,7 +8,14 @@ from typing import Annotated
 from models import PaymentMethodModel, Token
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES,create_access_token, get_current_active_user, get_current_active_user_login, get_token_from_request, password_hash
+from auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES,create_access_token, get_current_active_user, get_current_active_user_login, get_token_from_request, password_hash, get_current_active_user_websocket
+from connectionManager import connection_manager
+import json
+
+async def broadcast_users():
+    users = await AsyncORM.get_users()
+    users_json = json.dumps([u.model_dump() for u in users], separators=(",", ":"))
+    await connection_manager.broadcast(users_json)
 
 def create_fastapi_app():
     app = FastAPI(title="FastAPI")
@@ -156,6 +163,7 @@ def create_fastapi_app():
             raise HTTPException(status_code=400, detail="Login already registered")
         user.psw = password_hash.hash(user.psw)
         new_user = await AsyncORM.add_user(user)
+        await broadcast_users()
         return new_user
 
 
@@ -171,6 +179,7 @@ def create_fastapi_app():
         current_user: Annotated[modelsDTO.UserDTO,Depends(get_current_active_user)]
     ):
         user = await AsyncORM.update_user_info(current_user.id, updated_user)
+        await broadcast_users()
         return user
     
     @app.get("/sessionSeatsAvailable/{session_id}")
@@ -212,7 +221,25 @@ def create_fastapi_app():
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Booking failed: {str(e)}")
         
-
+    @app.websocket("/admin/users")
+    async def admin_users(
+        websocket: WebSocket,
+        current_user: Annotated[modelsDTO.UserDTO,Depends(get_current_active_user_websocket)]
+        ):
+        if not current_user.admin:
+            raise HTTPException(status_code=400, detail="Not allowd")
+        await connection_manager.connect(websocket)
+        try:
+            while True:
+                users = await AsyncORM.get_users()
+                users_json = json.dumps([u.model_dump() for u in users], separators=(",", ":"))
+                await connection_manager.send_personal_message(users_json, websocket)
+                data = await websocket.receive_text()
+                # await connection_manager.broadcast(f"Client #{client_id} says: {data}")s
+        except WebSocketDisconnect:
+            # Удаляем соединение при отключении клиента
+            connection_manager.disconnect(websocket)
+            # await connection_manager.broadcast(f"Client #{client_id} left the chat")
 
 
     return app
