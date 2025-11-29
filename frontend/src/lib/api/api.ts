@@ -225,3 +225,28 @@ export async function delteUserById(userId:number): Promise<boolean> {
 	}
 	return true
 }
+
+export async function fetchMastersAdmin() {
+	const res = await fetch(`http://127.0.0.1:8000/admin/masters`,{
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (!res.ok) throw new Error('Нет логина');
+	const data = await res.json();
+	return data as MasterDTO[];
+}
+
+export async function delteMasterById(masterId:number): Promise<boolean> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/master?master_id=${masterId}`,{
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (res.status === 401) {
+		return false; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
+}

@@ -229,7 +229,7 @@ def create_fastapi_app():
         ):  
         if not current_user.admin:
             raise HTTPException(status_code=401, detail="Not allowd")
-        print("hello user")
+      
         if await AsyncORM.delte_user(user_id):
             await broadcast_users()
             return JSONResponse(
@@ -264,6 +264,35 @@ def create_fastapi_app():
             # Удаляем соединение при отключении клиента
             connection_manager.disconnect(websocket)
             # await connection_manager.broadcast(f"Client #{client_id} left the chat")
+
+    @app.get("/admin/masters")
+    async def admin_masters(
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+        masters = await AsyncORM.get_all_masters()
+        return masters
+
+    @app.delete("/admin/master")
+    async def delte_master_admin(
+        master_id: int,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.delte_master_admin(master_id):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
 
 
     return app

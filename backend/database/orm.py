@@ -175,7 +175,7 @@ class AsyncORM:
             stmt = select(MasterORM)
             res = await session.execute(stmt)
             result_orm = res.scalars().all()
-            result_dto = [modelsDTO.MasterDTO.model_validate(row, from_attributes=True).model_dump() for row in result_orm]
+            result_dto = [modelsDTO.MasterDTO.model_validate(row, from_attributes=True) for row in result_orm]
             return result_dto
         
     @staticmethod
@@ -470,6 +470,27 @@ class AsyncORM:
                 return False
             
             await session.delete(user)
+            await session.commit()
+            return True
+        
+    @staticmethod
+    async def get_workshops_admin() -> list[modelsDTO.WorkshopDTO]:
+        async with async_session_factory() as session:
+            stmt = select(WorkshopORM)
+            res = await session.execute(stmt)
+            result_orm = res.scalars().all()
+            result_dto = [modelsDTO.WorkshopDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            return result_dto
+        
+    @staticmethod
+    async def delte_master_admin(master_id: int) -> bool:
+        async with async_session_factory() as session:
+            master = await session.get(MasterORM, master_id)
+            
+            if not master:
+                return False
+            
+            await session.delete(master)
             await session.commit()
             return True
 

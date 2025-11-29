@@ -1,48 +1,30 @@
 <script lang="ts">
 	import SectionWraper from '$lib/components/SectionWraper.svelte';
 	import type { MasterDTO } from '$lib/models.ts';
+	import { fetchMastersAdmin, delteMasterById } from "$lib/api/api";
+	import { onMount } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
 
-	// Тестовые мастера (локальные данные, без API)
-	let masters: MasterDTO[] = [
-		{
-			id: 1,
-			first_name: 'Анна',
-			last_name: 'Коваль',
-			specialization: 'Живопись',
-			expirience: 8,
-			bio: 'Автор авторских этюдов и курсов для начинающих'
-		} as unknown as MasterDTO,
-		{
-			id: 2,
-			first_name: 'Пётр',
-			last_name: 'Горбачёв',
-			specialization: 'Керамика',
-			expirience: 12,
-			bio: 'Работает с керамикой и глазурью, проводит мастер-классы.'
-		} as unknown as MasterDTO,
-		{
-			id: 3,
-			first_name: 'Светлана',
-			last_name: 'Лебедева',
-			specialization: 'Текстиль',
-			expirience: 5,
-			bio: 'Специалист по батике и принтам на ткани.'
-		} as unknown as MasterDTO
-	];
+	let loading = $state(true);
 
-	let loading = false;
+	let masters: MasterDTO[] = $state([]);
+	let selectedMaster: MasterDTO | null = $state(null);
 
+	async function fetchData() {
+		masters = await fetchMastersAdmin()
+	}
+
+	onMount(async ()=> {await fetchData(); loading=false;});
+
+	async function removeMaster(m: MasterDTO) {
+		masters = masters.filter((x) => x.id !== m.id);
+		const res = await delteMasterById(m.id);
+		if (!res) loading = true;
+	}
 	function formatName(m: MasterDTO) {
 		return `${m.first_name ?? ''} ${m.last_name ?? ''}`.trim();
 	}
 
-	function editMaster(m: MasterDTO) {
-		alert(`Редактировать мастера: ${formatName(m)} (id=${m.id})`);
-	}
-
-	function removeMaster(m: MasterDTO) {
-		masters = masters.filter((x) => x.id !== m.id);
-	}
 </script>
 
 {#if loading}
@@ -84,13 +66,12 @@
 									<div class="flex gap-2">
 										<button
 											class="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
-											on:click={() => editMaster(m)}
 										>
 											Ред.
 										</button>
 										<button
 											class="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
-											on:click={() => removeMaster(m)}
+											onclick={() => removeMaster(m)}
 										>
 											Удалить
 										</button>
@@ -109,6 +90,28 @@
 		</div>
 	</SectionWraper>
 {/if}
+
+{#if selectedMaster}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
+		transition:fade
+	>
+		<div
+			class="animate-fade-in relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+			transition:fly={{ y: 100, duration: 300 }}
+		>
+			<button
+				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+				onclick={() => {
+					selectedMaster = null
+				}}>✕</button
+			>
+			<h2 class="mb-2 text-2xl font-bold">asfd</h2>
+			<p class="text-gray-700"></p>
+		</div>
+	</div>
+{/if}
+
 
 <style>
 	.loader {

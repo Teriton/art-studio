@@ -38,7 +38,8 @@ class MasterORM(Base):
     bio: Mapped[str]
 
     workshops: Mapped[list["WorkshopORM"]] = relationship(
-        back_populates="master"
+        back_populates="master",
+        cascade="all, delete-orphan"
     )
 
 class WorkshopORM(Base):
@@ -62,11 +63,13 @@ class WorkshopORM(Base):
     )
 
     sets_of_material: Mapped[list["SetOfMaterialORM"]] = relationship(
-        back_populates="workshop"
+        back_populates="workshop",
+        cascade="all, delete-orphan"
     )
 
     sessions: Mapped[list["ScheduleORM"]] = relationship(
-        back_populates="workshop"
+        back_populates="workshop",
+        cascade="all, delete-orphan"
     )
 
 class TechniqueORM(Base):
@@ -131,7 +134,8 @@ class ScheduleORM(Base):
     )
 
     orders: Mapped[list["OrderORM"]] = relationship(
-        back_populates="session"
+        back_populates="session",
+        cascade="all, delete-orphan"
     )
 
 class OrderORM(Base):
