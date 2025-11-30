@@ -1,112 +1,27 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { delteWorkshopById, fetchWorkshopsAdmin } from '$lib/api/api';
     import SectionWraper from '$lib/components/SectionWraper.svelte';
-    import { Status, type WorkshopDTO } from '$lib/models';
+    import { Status, type WorkshopDTO, type WorkshopRelDTO } from '$lib/models';
+	import { onMount } from 'svelte';
+    
+    let workshops: WorkshopRelDTO[] = $state([]);
+    let loading = $state(false);
+	
+    async function fetchData() {
+		const workshopsNull = await fetchWorkshopsAdmin()
+		workshops =  workshopsNull ? workshopsNull: [];
+		if (!workshopsNull) goto("/");
+	}
 
-	// Тестовые мастера (локальные данные, без API)
-    const workshops: WorkshopDTO[] = [
-    {
-        id: 1,
-        master_id: 101,
-        technique_id: 201,
-        title: "Основы акварели",
-        dificulty: "Новичок",
-        duration: 120,
-        fee: 2500,
-        status: Status.active
-    },
-    {
-        id: 2,
-        master_id: 102,
-        technique_id: 202,
-        title: "Роспись по керамике",
-        dificulty: "Средний",
-        duration: 180,
-        fee: 3500,
-        status: Status.active
-    },
-    {
-        id: 3,
-        master_id: 103,
-        technique_id: 203,
-        title: "Лепка из полимерной глины",
-        dificulty: "Новичок",
-        duration: 90,
-        fee: 2000,
-        status: Status.active
-    },
-    {
-        id: 4,
-        master_id: 104,
-        technique_id: 204,
-        title: "Вышивка золотым шитьём",
-        dificulty: "Эксперт",
-        duration: 240,
-        fee: 5000,
-        status: Status.canceled
-    },
-    {
-        id: 5,
-        master_id: 105,
-        technique_id: 205,
-        title: "Граттаж: рисуем скретч-артом",
-        dificulty: "Новичок",
-        duration: 60,
-        fee: 1500,
-        status: Status.unactive
-    },
-    {
-        id: 6,
-        master_id: 106,
-        technique_id: 206,
-        title: "Моделирование из бумаги (киригами)",
-        dificulty: "Средний",
-        duration: 150,
-        fee: 2800,
-        status: Status.active
-    },
-    {
-        id: 7,
-        master_id: 107,
-        technique_id: 207,
-        title: "Точечная роспись (дот-арт)",
-        dificulty: "Средний",
-        duration: 120,
-        fee: 2200,
-        status: Status.canceled
-    },
-    {
-        id: 8,
-        master_id: 108,
-        technique_id: 208,
-        title: "Витражная роспись на стекле",
-        dificulty: "Эксперт",
-        duration: 200,
-        fee: 4200,
-        status: Status.active
-    },
-    {
-        id: 9,
-        master_id: 109,
-        technique_id: 209,
-        title: "Скетчинг в городской среде",
-        dificulty: "Средний",
-        duration: 180,
-        fee: 3000,
-        status: Status.active
-    },
-    {
-        id: 10,
-        master_id: 110,
-        technique_id: 210,
-        title: "Макраме для начинающих",
-        dificulty: "Новичок",
-        duration: 100,
-        fee: 1800,
-        status: Status.active
-    }
-    ];
+    async function removeMaster(w: WorkshopRelDTO) {
+		workshops = workshops.filter((x) => x.id !== w.id);
+		const res = await delteWorkshopById(w.id);
+		if (!res) loading = true;
+	}
 
-    let loading = false;
+    onMount(async ()=> {await fetchData(); loading=false;});
+
 
 </script>
 
@@ -157,7 +72,7 @@
 										</button>
 										<button
 											class="rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700"
-											onclick={() => {}}
+											onclick={async () => { await removeMaster(w)}}
 										>
 											Удалить
 										</button>

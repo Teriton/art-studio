@@ -336,4 +336,33 @@ def create_fastapi_app():
         )
 
 
+    @app.get("/admin/workshops")
+    async def admin_workshops(
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+        workshops = await AsyncORM.get_workshops()
+        return workshops
+
+    @app.delete("/admin/workshop")
+    async def delte_workshop_admin(
+        workshop_id: int,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.delte_workshop_admin(workshop_id):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+
     return app

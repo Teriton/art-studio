@@ -4,6 +4,7 @@
 	import { fetchMastersAdmin, delteMasterById, updateMasterById, addMasterAdmin } from "$lib/api/api";
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 
 	let loading = $state(true);
 	let addMasterForm: MasterAddDTO | null = $state(null)
@@ -13,7 +14,9 @@
 	let selectedMaster: MasterDTO | null = $state(null);
 
 	async function fetchData() {
-		masters = await fetchMastersAdmin()
+		const mastersNull = await fetchMastersAdmin()
+		masters =  mastersNull ? mastersNull: [];
+		if (!mastersNull) goto("/");
 	}
 
 	onMount(async ()=> {await fetchData(); loading=false;});

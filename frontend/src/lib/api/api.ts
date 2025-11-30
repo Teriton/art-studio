@@ -227,13 +227,13 @@ export async function delteUserById(userId:number): Promise<boolean> {
 	return true
 }
 
-export async function fetchMastersAdmin() {
+export async function fetchMastersAdmin(): Promise<MasterDTO[] | null> {
 	const res = await fetch(`http://127.0.0.1:8000/admin/masters`,{
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
 	});
-	if (!res.ok) throw new Error('Нет логина');
+	if (!res.ok) {return null};
 	const data = await res.json();
 	return data as MasterDTO[];
 }
@@ -270,4 +270,29 @@ export async function addMasterAdmin(master: MasterAddDTO) {
 		body: JSON.stringify(master)
 	});
 	return res.body;
+}
+
+export async function fetchWorkshopsAdmin(): Promise<WorkshopRelDTO[] | null> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/workshops`,{
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (!res.ok) {return null};
+	const data = await res.json();
+	return data as WorkshopRelDTO[];
+}
+
+export async function delteWorkshopById(workshopId:number): Promise<boolean> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/workshop?workshop_id=${workshopId}`,{
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (res.status === 401) {
+		return false; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
 }

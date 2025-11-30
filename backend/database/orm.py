@@ -525,5 +525,18 @@ class AsyncORM:
             )
             session.add(master_orm)
             await session.commit()
+
+            return True
+        
+
+    @staticmethod
+    async def delte_workshop_admin(workshop_id: int) -> bool:
+        async with async_session_factory() as session:
+            workshop = await session.get(WorkshopORM, workshop_id)
             
+            if not workshop:
+                return False
+            
+            await session.delete(workshop)
+            await session.commit()
             return True
