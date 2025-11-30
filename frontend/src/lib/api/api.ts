@@ -1,4 +1,5 @@
 import type {
+	MasterAddDTO,
 	MasterDTO,
 	OrderRelsDTO,
 	PaymentDTO,
@@ -249,4 +250,24 @@ export async function delteMasterById(masterId:number): Promise<boolean> {
 		throw new Error(`Ошибка ${res.text}`);
 	}
 	return true
+}
+
+export async function updateMasterById(masterId:number ,master: MasterAddDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/master?master_id=${masterId}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(master)
+	});
+	return res.body;
+}
+
+export async function addMasterAdmin(master: MasterAddDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/master`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(master)
+	});
+	return res.body;
 }

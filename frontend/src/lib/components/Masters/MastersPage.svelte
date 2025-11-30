@@ -1,13 +1,15 @@
 <script lang="ts">
 	import SectionWraper from '$lib/components/SectionWraper.svelte';
-	import type { MasterDTO } from '$lib/models.ts';
-	import { fetchMastersAdmin, delteMasterById } from "$lib/api/api";
+	import type { MasterAddDTO, MasterDTO } from '$lib/models.ts';
+	import { fetchMastersAdmin, delteMasterById, updateMasterById, addMasterAdmin } from "$lib/api/api";
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 
 	let loading = $state(true);
+	let addMasterForm: MasterAddDTO | null = $state(null)
 
 	let masters: MasterDTO[] = $state([]);
+	let selectedMasterBuf: MasterDTO | null = $state(null);
 	let selectedMaster: MasterDTO | null = $state(null);
 
 	async function fetchData() {
@@ -21,8 +23,37 @@
 		const res = await delteMasterById(m.id);
 		if (!res) loading = true;
 	}
+
+	function addMasterModal() {
+		addMasterForm = {
+			first_name: "",
+			last_name: "",
+			specialization: "",
+			expirience: 0,
+			bio: ""
+		};
+	}
+
 	function formatName(m: MasterDTO) {
 		return `${m.first_name ?? ''} ${m.last_name ?? ''}`.trim();
+	}
+	async function save() {
+		if (selectedMaster) {
+			const { id, ...masterData } = selectedMaster;
+			if (!(await updateMasterById(selectedMaster.id,masterData))) {
+				loading = true;
+			}
+		}
+		selectedMaster = null;
+	}
+	async function addMaster() {
+		if (addMasterForm) {
+			if (!(await addMasterAdmin(addMasterForm))) {
+				loading = true;
+			}
+		}
+		await fetchData()
+		addMasterForm = null;
 	}
 
 </script>
@@ -40,7 +71,10 @@
                 <h2 class="text-2xl font-semibold">Мастера</h2>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Всего: {masters.length}</div>
-                    <button class="rounded bg-green-600 px-3 py-1 text-white hover:bg-green-700">Добавить</button>
+                    <button class="rounded bg-green-600 px-3 py-1 text-white hover:bg-green-700"
+							onclick={addMasterModal}
+					
+					>Добавить</button>
                 </div>
             </div>
             <table class="w-full table-auto">
@@ -66,6 +100,7 @@
 									<div class="flex gap-2">
 										<button
 											class="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
+											onclick={()=>{selectedMaster = m; selectedMasterBuf = {...m}}}
 										>
 											Ред.
 										</button>
@@ -103,15 +138,127 @@
 			<button
 				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
 				onclick={() => {
+					if (selectedMaster)	Object.assign(selectedMaster, selectedMasterBuf);
 					selectedMaster = null
 				}}>✕</button
 			>
-			<h2 class="mb-2 text-2xl font-bold">asfd</h2>
-			<p class="text-gray-700"></p>
+			<h2 class="mb-2 text-2xl font-light">Окно редактирования</h2>
+			<div class="flex flex-col gap-2">
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<p class="text-gray-700 font-light">Имя</p>
+						<input
+							bind:value={selectedMaster.first_name}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						/>
+					</div>
+					<div>
+						<p class="text-gray-700 font-light">Фамилия</p>
+						<input
+							bind:value={selectedMaster.last_name}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+							/>
+					</div>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Специализация</p>
+					<input
+						bind:value={selectedMaster.specialization}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Опыт (лет)</p>
+					<input
+						type="number"
+						bind:value={selectedMaster.expirience}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">О мастере</p>
+					<textarea
+						bind:value={selectedMaster.bio}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none">
+					</textarea>
+				</div>
+				<button
+					onclick={save}
+					class="w-full mt-2 bg-gray-200/80"
+				>
+					Сохранить
+				</button>
+			</div>
 		</div>
 	</div>
 {/if}
 
+
+{#if addMasterForm}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
+		transition:fade
+	>
+		<div
+			class="animate-fade-in relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+			transition:fly={{ y: 100, duration: 300 }}
+		>
+			<button
+				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+				onclick={() => {
+					addMasterForm = null
+				}}>✕</button
+			>
+			<h2 class="mb-2 text-2xl font-light">Окно добавления мастера</h2>
+			<div class="flex flex-col gap-2">
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<p class="text-gray-700 font-light">Имя</p>
+						<input
+							bind:value={addMasterForm.first_name}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						/>
+					</div>
+					<div>
+						<p class="text-gray-700 font-light">Фамилия</p>
+						<input
+							bind:value={addMasterForm.last_name}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+							/>
+					</div>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Специализация</p>
+					<input
+						bind:value={addMasterForm.specialization}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Опыт (лет)</p>
+					<input
+						type="number"
+						bind:value={addMasterForm.expirience}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">О мастере</p>
+					<textarea
+						bind:value={addMasterForm.bio}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none">
+					</textarea>
+				</div>
+				<button
+					class="w-full mt-2 bg-gray-200/80"
+					onclick={addMaster}
+				>
+					Добавить
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <style>
 	.loader {

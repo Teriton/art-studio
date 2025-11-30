@@ -493,4 +493,37 @@ class AsyncORM:
             await session.delete(master)
             await session.commit()
             return True
+        
+    @staticmethod
+    async def update_master_admin(master_id: int, master: modelsDTO.MasterAddDTO) -> bool:
+        async with async_session_factory() as session:
+            stmt = select(MasterORM).filter_by(id=master_id)
+            res = await session.execute(stmt)
+            master_orm = res.scalar_one_or_none()
+            if not master_orm:
+                return False
+            
+            master_orm.first_name = master.first_name
+            master_orm.last_name = master.last_name
+            master_orm.specialization = master.specialization
+            master_orm.expirience = master.expirience
+            master_orm.bio = master.bio
 
+            await session.commit()
+
+            return True
+    
+    @staticmethod
+    async def add_master_admin(master: modelsDTO.MasterAddDTO):
+        async with async_session_factory() as session:
+            master_orm = MasterORM(
+                first_name=master.first_name,
+                last_name=master.last_name,
+                specialization = master.specialization,
+                expirience = master.expirience,
+                bio = master.bio
+            )
+            session.add(master_orm)
+            await session.commit()
+            
+            return True

@@ -293,6 +293,47 @@ def create_fastapi_app():
                 "success": False
             }
         )
+    
+    @app.put("/admin/master")
+    async def update_master_admin(
+        master_id: int,
+        master: modelsDTO.MasterAddDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.update_master_admin(master_id, master):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+    
+    @app.post("/admin/master")
+    async def add_master_admin(
+        master: modelsDTO.MasterAddDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.add_master_admin(master):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
 
 
     return app

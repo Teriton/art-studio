@@ -44,7 +44,6 @@
 	}
 
 	async function save() {
-		// optimistic local save; backend update endpoint may be missing in this repo.
 		editing = false;
 		if (!user) return;
 		user.first_name = first_name;
