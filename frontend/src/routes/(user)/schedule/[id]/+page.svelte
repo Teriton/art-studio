@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SessionPage from '$lib/components/SessionPage.svelte';
+	import SessionPage from '$lib/components/SessionPages/SessionPage.svelte';
 
 
 	let { data } = $props();

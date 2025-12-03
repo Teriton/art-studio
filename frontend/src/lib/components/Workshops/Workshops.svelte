@@ -66,6 +66,10 @@
 		selectedTechnique = null;
 	}
 
+	function detailsPage(workshopId: number | null) {
+		if (workshopId === null) goto('/');
+		goto(`/admin/workshops/${workshopId}`);
+	}
 
     onMount(async ()=> {await fetchData(); loading=false;});
 
@@ -115,7 +119,7 @@
 									<div class="flex gap-2">
 										<button
 											class="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
-											onclick={() => {}}
+											onclick={()=>{detailsPage(w.id)}}
 										>
 											Подробнее
 										</button>

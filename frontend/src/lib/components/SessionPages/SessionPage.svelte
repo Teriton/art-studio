@@ -9,7 +9,7 @@
 
 
 	let selectedSession: ScheduleDTO | null = $state(null);
-	let logedin = $state(false);
+	let availableSeats = $state(true);
 	let seats:Seats = $state({
 		allSeats: 0,
 		occupiedSeats:	0,
@@ -17,6 +17,11 @@
 	async function selectSession(session:ScheduleDTO) {
 		selectedSession = session
 		seats = await fetchNumberOfSeatsAvalable(session.id)
+		if (seats.allSeats <= seats.occupiedSeats){
+			availableSeats = false
+		} else {
+			availableSeats = true
+		}
 	}
 
 	async function bookSession() {
@@ -145,12 +150,16 @@
 					<span class=" text-black">Колличество мест:</span>
 					{seats.allSeats}/{seats.occupiedSeats}
 				</p>
-				<button
-					onclick={async () => await bookSession()}
-					class="block w-full border-amber-50 text-center transition-colors"
-				>
-					Забронировать
-				</button>
+				{#if availableSeats}
+					<button
+						onclick={async () => {await bookSession()}}
+						class="block w-full border-amber-50 text-center transition-colors"
+					>
+						Забронировать
+					</button>
+				{:else}
+					<h2 class="block w-full border-amber-50 text-center transition-colors mt-2">Свободных мест нету</h2>
+				{/if}
 			</div>
 		</div>
 	</div>
