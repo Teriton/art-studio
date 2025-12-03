@@ -10,6 +10,9 @@
 	"/admin/profile": [],
 	"/admin/users": [],
 	"/admin/workshops": [],
+	"/admin/workshops/[id]": [
+		"src/routes/admin/workshops/[id]/+page.server.ts"
+	],
 	"/(registration)/login": [],
 	"/(registration)/logout": [],
 	"/(user)/orders": [],

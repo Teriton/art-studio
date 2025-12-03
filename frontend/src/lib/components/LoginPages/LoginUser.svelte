@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { loginUser } from '$lib/api/api';
 
 	let passwordVisible = $state(false);
 	let username = $state('');
-	let password = $state(''); // TODO: Доработать дизайн глазикаы
+	let password = $state('');
 	let error = $state('');
 
 	async function handleLogin() {

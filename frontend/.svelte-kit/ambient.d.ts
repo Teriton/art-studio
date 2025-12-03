@@ -77,7 +77,6 @@ declare module '$env/static/private' {
 	export const _JAVA_AWT_WM_NONREPARENTING: string;
 	export const XDG_CURRENT_DESKTOP: string;
 	export const NH_FLAKE: string;
-	export const GTK_ICON_THEME: string;
 	export const npm_package_version: string;
 	export const PYTHONSTARTUP: string;
 	export const WAYLAND_DISPLAY: string;
@@ -227,7 +226,6 @@ declare module '$env/dynamic/private' {
 		_JAVA_AWT_WM_NONREPARENTING: string;
 		XDG_CURRENT_DESKTOP: string;
 		NH_FLAKE: string;
-		GTK_ICON_THEME: string;
 		npm_package_version: string;
 		PYTHONSTARTUP: string;
 		WAYLAND_DISPLAY: string;

@@ -66,14 +66,18 @@
 					Необходимые материалы
 				</h2>
 				<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
-					{#each data.workshop?.sets_of_material as set_of_material}
-						<div>
-							<h4 class="text-sm text-gray-500">{set_of_material.material.name}</h4>
-							<p class="text-base text-gray-800">
-								{set_of_material.quantity + ' ' + set_of_material.unit}
-							</p>
-						</div>
-					{/each}
+					{#if data.workshop?.sets_of_material.length}
+						{#each data.workshop?.sets_of_material as set_of_material}
+							<div>
+								<h4 class="text-sm text-gray-500">{set_of_material.material.name}</h4>
+								<p class="text-base text-gray-800">
+									{set_of_material.quantity + ' ' + set_of_material.unit}
+								</p>
+							</div>
+						{/each}
+					{:else}
+							<h4 class="text-gray-500">На данный мастеркласс материалы не нужны</h4>
+					{/if}
 				</div>
 				<hr/>
 				<div class="flex flex-col gap-2">
@@ -81,21 +85,26 @@
 						Расписание сессий
 					</h2>
 					<div class="flex flex-col gap-3 rounded-3xl bg-gray-400/40 p-4 shadow-xl">
-						{#each data.sessions as sessionDate}
-							<h2 class="mx-4 text-2xl font-semibold text-black md:text-xl">{sessionDate[0]}</h2>
-							<div class="mx-4 flex gap-4">
-								{#each sessionDate[1] as session}
-									<button class=" rounded-2xl bg-red-400 p-2 px-4 duration-200 hover:cursor-pointer hover:bg-red-300"
-											onclick={() => selectSession(session)}
-									>
-										<div
+						{#if data.sessions.size}
+							
+							{#each data.sessions as sessionDate}
+								<h2 class="mx-4 text-2xl font-semibold text-black md:text-xl">{sessionDate[0]}</h2>
+								<div class="mx-4 flex gap-4">
+									{#each sessionDate[1] as session}
+										<button class=" rounded-2xl bg-red-400 p-2 px-4 duration-200 hover:cursor-pointer hover:bg-red-300"
+												onclick={() => selectSession(session)}
 										>
-											<p>{new Date(session.date).toISOString().split('T')[1].slice(0, 5)}</p>
-										</div>
-									</button>
-								{/each}
-							</div>
-						{/each}
+											<div
+											>
+												<p>{new Date(session.date).toISOString().split('T')[1].slice(0, 5)}</p>
+											</div>
+										</button>
+									{/each}
+								</div>
+							{/each}
+						{:else}
+							<h4 class="text-gray-500">Сессий пока еще нету :)</h4>
+						{/if}
 					</div>
 				</div>
 			{:else}

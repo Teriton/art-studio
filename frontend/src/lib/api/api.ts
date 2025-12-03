@@ -6,8 +6,10 @@ import type {
 	PaymentMethod,
 	PaymentOrderDTO,
 	Seats,
+	TechniqueDTO,
 	UserAddDTO,
 	UserDTO,
+	WorkshopAddDTO,
 	WorkshopAllRelDTO,
 	WorkshopMasterDTO,
 	WorkshopRelDTO
@@ -295,4 +297,25 @@ export async function delteWorkshopById(workshopId:number): Promise<boolean> {
 		throw new Error(`Ошибка ${res.text}`);
 	}
 	return true
+}
+
+export async function fetchTechniquesAdmin(): Promise<TechniqueDTO[] | null> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/techniques`,{
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (!res.ok) {return null};
+	const data = await res.json();
+	return data as TechniqueDTO[];
+}
+
+export async function addWorkshopAdmin(workshop: WorkshopAddDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/workshop`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(workshop)
+	});
+	return res.body;
 }

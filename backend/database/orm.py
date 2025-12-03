@@ -540,3 +540,29 @@ class AsyncORM:
             await session.delete(workshop)
             await session.commit()
             return True
+        
+    @staticmethod
+    async def add_workshop_admin(workshop: modelsDTO.WorkshopAddDTO):
+        async with async_session_factory() as session:
+            workshop_orm = WorkshopORM(
+                master_id = workshop.master_id,
+                technique_id = workshop.technique_id,
+                title = workshop.title,
+                dificulty = workshop.dificulty,
+                duration = workshop.duration,
+                fee = workshop.fee,
+                status = workshop.status
+            )
+            session.add(workshop_orm)
+            await session.commit()
+
+            return True
+        
+    @staticmethod
+    async def get_techniques()  -> list[modelsDTO.TechniqueDTO]:
+        async with async_session_factory() as session:
+            stmt = select(TechniqueORM)
+            res = await session.execute(stmt)
+            result_orm = res.scalars().all()
+            result_dto = [modelsDTO.TechniqueDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            return result_dto
