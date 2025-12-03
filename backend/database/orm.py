@@ -566,3 +566,66 @@ class AsyncORM:
             result_orm = res.scalars().all()
             result_dto = [modelsDTO.TechniqueDTO.model_validate(row, from_attributes=True) for row in result_orm]
             return result_dto
+        
+    @staticmethod
+    async def get_materials()  -> list[modelsDTO.MaterialDTO]:
+        async with async_session_factory() as session:
+            stmt = select(MaterialORM)
+            res = await session.execute(stmt)
+            result_orm = res.scalars().all()
+            result_dto = [modelsDTO.MaterialDTO.model_validate(row, from_attributes=True) for row in result_orm]
+            return result_dto
+        
+    @staticmethod
+    async def add_material_admin(material: modelsDTO.MaterialAddDTO):
+        async with async_session_factory() as session:
+            material_orm = MaterialORM(
+                name = material.name,
+                discription = material.discription,
+                cost = material.cost,
+                type = material.type
+
+            )
+            session.add(material_orm)
+            await session.commit()
+            await session.refresh(material_orm)
+            result_dto = modelsDTO.MaterialDTO.model_validate(material_orm, from_attributes=True)
+
+            return result_dto
+        
+    @staticmethod
+    async def update_workshop_admin(workshop_id: int, workshop: modelsDTO.WorkshopAddDTO) -> bool:
+        async with async_session_factory() as session:
+            stmt = select(WorkshopORM).filter_by(id=workshop_id)
+            res = await session.execute(stmt)
+            workshop_orm = res.scalar_one_or_none()
+            if not workshop_orm:
+                return False
+            
+            workshop_orm.title = workshop.title
+            workshop_orm.master_id = workshop.master_id
+            workshop_orm.technique_id = workshop.technique_id
+            workshop_orm.dificulty = workshop.dificulty
+            workshop_orm.duration = workshop.duration
+            workshop_orm.fee = workshop.fee
+            workshop_orm.status = workshop.status
+
+            await session.commit()
+
+            return True
+        
+    @staticmethod
+    async def add_set_of_material_admin(set_of_material: modelsDTO.SetOfMaterialRawDTO):
+        async with async_session_factory() as session:
+            set_of_material_orm = SetOfMaterialORM(
+                workshop_id = set_of_material.workshop_id,
+                material_id = set_of_material.material_id,
+                quantity = set_of_material.quantity,
+                unit = set_of_material.unit
+            )
+            session.add(set_of_material_orm)
+            await session.commit()
+
+            return True
+
+        

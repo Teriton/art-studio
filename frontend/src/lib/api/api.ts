@@ -1,11 +1,14 @@
 import type {
 	MasterAddDTO,
 	MasterDTO,
+	MaterialAddDTO,
+	MaterialDTO,
 	OrderRelsDTO,
 	PaymentDTO,
 	PaymentMethod,
 	PaymentOrderDTO,
 	Seats,
+	SetOfMaterialRawDTO,
 	TechniqueDTO,
 	UserAddDTO,
 	UserDTO,
@@ -310,6 +313,18 @@ export async function fetchTechniquesAdmin(): Promise<TechniqueDTO[] | null> {
 	return data as TechniqueDTO[];
 }
 
+export async function fetchMaterialsAdmin(): Promise<MaterialDTO[] | null> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/materials`,{
+		method: 'GET',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (!res.ok) {return null};
+	const data = await res.json();
+	return data as MaterialDTO[];
+}
+
+
 export async function addWorkshopAdmin(workshop: WorkshopAddDTO) {
 	const res = await fetch(`http://127.0.0.1:8000/admin/workshop`, {
 		method: 'POST',
@@ -319,3 +334,35 @@ export async function addWorkshopAdmin(workshop: WorkshopAddDTO) {
 	});
 	return res.body;
 }
+
+export async function updateWorkshopById(workshopId:number ,workshop: WorkshopAddDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/workshop?workshop_id=${workshopId}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(workshop)
+	});
+	return res.body;
+}
+
+export async function addMaterialAdmin(material: MaterialAddDTO): Promise<MaterialDTO | null> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/material`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(material)
+	});
+	if (!res.ok) {return null};
+	const data = await res.json();
+	return data as MaterialDTO;
+}
+export async function addSetOfMaterialAdmin(setOfMaterial: SetOfMaterialRawDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/setOfMaterial`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(setOfMaterial)
+	});
+	return res.body;
+}
+

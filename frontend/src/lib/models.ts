@@ -96,8 +96,15 @@ export interface WorkshopAllRelDTO extends WorkshopDTO {
 	sessions: ScheduleDTO[];
 }
 
+export interface SetOfMaterialRawDTO {
+	workshop_id: number;
+	material_id: number;
+	quantity: number;
+	unit: string;
+}
+
 export interface SetOfMaterialDTO {
-	workhop_id: number;
+	workshop_id: number;
 	material_id: number;
 	quantity: number;
 	unit: string;

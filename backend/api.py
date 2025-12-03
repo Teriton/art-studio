@@ -384,6 +384,27 @@ def create_fastapi_app():
                 "success": False
             }
         )
+    
+    @app.put("/admin/workshop")
+    async def update_workshop_admin(
+        workshop_id: int,
+        workshop: modelsDTO.WorkshopAddDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.update_workshop_admin(workshop_id, workshop):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
             
 
     @app.get("/admin/techniques")
@@ -394,4 +415,52 @@ def create_fastapi_app():
             raise HTTPException(status_code=401, detail="Not allowd")
         techniques = await AsyncORM.get_techniques()
         return techniques
+    
+    @app.get("/admin/materials")
+    async def admin_materials(
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+        materials = await AsyncORM.get_materials()
+        return materials
+
+    @app.post("/admin/material")
+    async def add_material_admin(
+        material: modelsDTO.MaterialAddDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+
+        new_material = await AsyncORM.add_material_admin(material)
+        if new_material:
+            return new_material
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+    
+    @app.post("/admin/setOfMaterial")
+    async def add_set_of_material_admin(
+        set_of_material: modelsDTO.SetOfMaterialRawDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+
+        if await AsyncORM.add_set_of_material_admin(set_of_material):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
     return app
+
+

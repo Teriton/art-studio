@@ -36,12 +36,13 @@ class WorkshopAllRelDTO(WorkshopDTO):
     sets_of_material: list["SetOfMaterialDTO"]
     sessions: list["ScheduleDTO"]
 
-class SetOfMaterialDTO(BaseModel):
+class SetOfMaterialRawDTO(BaseModel):
     workshop_id: int
     material_id: int
     quantity: int
     unit:str 
- 
+
+class SetOfMaterialDTO(SetOfMaterialRawDTO):
     material: "MaterialDTO"
 
     

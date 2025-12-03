@@ -1,23 +1,94 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { fetchNumberOfSeatsAvalable, bookSessionPost, fetchActiveUser, fetchMastersAdmin, fetchTechniquesAdmin } from '$lib/api/api.js';
+	import { fetchNumberOfSeatsAvalable, bookSessionPost, fetchActiveUser, fetchMastersAdmin, fetchTechniquesAdmin, fetchMaterialsAdmin, updateWorkshopById, addMaterialAdmin, addSetOfMaterialAdmin } from '$lib/api/api.js';
 	import SectionWraper from '$lib/components/SectionWraper.svelte';
-	import { Status, type MasterDTO, type ScheduleDTO, type Seats, type TechniqueDTO, type WorkshopAddDTO } from '$lib/models.js';
+	import { Status, type MasterDTO, type MaterialAddDTO, type MaterialDTO, type ScheduleDTO, type Seats, type SetOfMaterialDTO, type SetOfMaterialRawDTO, type TechniqueDTO, type WorkshopAddDTO, type WorkshopAllRelDTO, type WorkshopDTO } from '$lib/models.js';
 	import { onMount } from 'svelte';
 	import {fade, fly} from "svelte/transition";
 	
 	let {data} = $props()
 
+	let workshopData: WorkshopAllRelDTO | null = $state(null);
+
 	let workshopEditForm: WorkshopAddDTO | null = $state(null);
+	let workshopBuf: WorkshopAllRelDTO | null = $state(null);
+	let setOfMaterialAddForm: SetOfMaterialRawDTO | null = $state(null)
+	let materialAddForm: MaterialAddDTO | null = $state(null);
 	let selectedMaster: MasterDTO | null = $state(null);
 	let selectedTechnique: TechniqueDTO | null = $state(null);
+	let selectedMaterial: MaterialDTO | null = $state(null);
+	let materials : MaterialDTO[] | null = $state([])
 	let masters: MasterDTO[] | null = $state([]);
 	let techniques: TechniqueDTO[] | null = $state([]);
 
+	async function SetOfMaterialAddForm() {
+		setOfMaterialAddForm = {
+			workshop_id: workshopData ? workshopData.id : -1,
+			material_id: -1,
+			quantity: 0,
+			unit: ""
+		};
+		materialAddForm = {
+			name: "",
+			discription: "",
+			cost: 0,
+			type: ""
+		};
+		selectedMaterial = null;
+		materials = await fetchMaterialsAdmin();
+	}
+
+	async function AddSetOfMaterialAddForm() {
+		if (setOfMaterialAddForm) {
+			if (!selectedMaterial && materialAddForm) {
+				const newMaterial: MaterialDTO | null = await addMaterialAdmin(materialAddForm);
+				if (newMaterial) {
+					setOfMaterialAddForm.material_id = newMaterial.id;
+				}
+			} else if (selectedMaterial) {
+				setOfMaterialAddForm.material_id = selectedMaterial.id;
+			}
+			setOfMaterialAddForm.workshop_id = workshopData ? workshopData.id : -1;
+			if (!(await addSetOfMaterialAdmin(setOfMaterialAddForm))) {
+				data.error = "Ошибка добавления набора материалов";
+			}
+			const fullSetOfMaterial: SetOfMaterialDTO = {
+			material: selectedMaterial ? selectedMaterial : {
+				id: -1,
+				...materialAddForm
+			} as MaterialDTO,
+			...setOfMaterialAddForm,
+			};
+			if (workshopData) workshopData.sets_of_material.push(fullSetOfMaterial);
+			setOfMaterialAddForm = null;
+			materialAddForm = null;
+			selectedMaterial = null;
+		}
+	}
+
+	async function saveWorkshopForm() {
+		if (workshopEditForm && selectedMaster?.id && selectedTechnique?.id && workshopBuf) {
+			workshopEditForm.master_id = selectedMaster.id;
+			workshopEditForm.technique_id = selectedTechnique.id;
+
+			if (!(await updateWorkshopById(workshopData ? workshopData.id : -1,workshopEditForm))) {
+				data.error = "Ошибка обновления";
+			}
+			workshopData = {...workshopBuf, ...workshopEditForm};
+			workshopData.master_id =  selectedMaster.id;
+			workshopData.master.first_name = selectedMaster.first_name;
+			workshopData.master.last_name = selectedMaster.last_name;
+			workshopData.technique_id =  selectedTechnique.id;
+			workshopData.technique.name = selectedTechnique.name;
+		}
+		workshopEditForm = null;
+	}
+
 	async function editWorkshopForm() {
-		workshopEditForm = data.workshop;
-		masters = await fetchMastersAdmin()
-		techniques = await fetchTechniquesAdmin()
+		workshopBuf =  JSON.parse(JSON.stringify(workshopData));
+		workshopEditForm = workshopData;
+		masters = await fetchMastersAdmin();
+		techniques = await fetchTechniquesAdmin();
 		selectedMaster = masters ? masters.filter(function(master){ return master.id == workshopEditForm?.master_id; })[0] : null;
 		selectedTechnique = techniques ? techniques.filter(function(technique){ return technique.id == workshopEditForm?.technique_id; })[0] : null;
 	}
@@ -49,7 +120,11 @@
 		}
 	}
 
-	onMount(async ()=> {await fetchData()});
+	async function loadData() {
+		workshopData = data.workshop;
+	}
+
+	onMount(async ()=> {await fetchData(); await loadData()});
 </script>
 
 <SectionWraper>
@@ -60,9 +135,9 @@
 				<div class="flex">
 						<input class="md:text-1xl mx-4 mb-6 text-3xl font-semibold text-black md:mb-0 rounded" bind:value={workshopEditForm.title}/>
 						<button class="rounded underline text-gray-700"
-								onclick={() => {}}><i class="fa-solid fa-floppy-disk"></i>Сохранить</button>
+								onclick={async () => {await saveWorkshopForm()}}><i class="fa-solid fa-floppy-disk"></i>Сохранить</button>
 						<button class="rounded underline text-gray-700"
-								onclick={() => {workshopEditForm = null}}><i class="fa-solid fa-xmark"></i>Отменить</button>
+								onclick={() => {workshopData = workshopBuf; workshopEditForm = null; }}><i class="fa-solid fa-xmark"></i>Отменить</button>
 					</div>
 					<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
 						<div>
@@ -111,37 +186,37 @@
 				{:else}
 					<div class="flex">
 						<h1 class="md:text-1xl mx-4 mb-6 text-3xl font-semibold text-black md:mb-0">
-							{data.workshop?.title}
+							{workshopData?.title}
 						</h1>
 						<button class="rounded underline text-gray-700"
-								onclick={() => {editWorkshopForm()}}><i class="fa-regular fa-pen-to-square"></i>Редактировать</button>
+								onclick={async () => {await editWorkshopForm()}}><i class="fa-regular fa-pen-to-square"></i>Редактировать</button>
 					</div>
 					<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
 						<div>
 							<h4 class="text-sm text-gray-500">Мастер</h4>
 							<p class="text-base text-gray-800">
-								{data.workshop?.master.first_name + ' ' + data.workshop?.master.last_name}
+								{workshopData?.master.first_name + ' ' + workshopData?.master.last_name}
 							</p>
 						</div>
 						<div>
 							<h4 class="text-sm text-gray-500">Техника</h4>
-							<p class="text-grasy-800 text-base">{data.workshop?.technique.name}</p>
+							<p class="text-grasy-800 text-base">{workshopData?.technique.name}</p>
 						</div>
 						<div>
 							<h4 class="text-sm text-gray-500">Сложность</h4>
-							<p class="text-base text-gray-800">{data.workshop?.dificulty}</p>
+							<p class="text-base text-gray-800">{workshopData?.dificulty}</p>
 						</div>
 						<div>
 							<h4 class="text-sm text-gray-500">Продолжительность</h4>
-							<p class="text-base text-gray-800">{data.workshop?.duration} мин.</p>
+							<p class="text-base text-gray-800">{workshopData?.duration} мин.</p>
 						</div>
 						<div>
 							<h4 class="text-sm text-gray-500">Цена</h4>
-							<p class="text-base text-gray-800">{data.workshop?.fee} руб.</p>
+							<p class="text-base text-gray-800">{workshopData?.fee} руб.</p>
 						</div>
 						<div>
 							<h4 class="text-sm text-gray-500">Статус</h4>
-							<p class="text-base text-gray-800">{data.workshop?.status}</p>
+							<p class="text-base text-gray-800">{workshopData?.status}</p>
 						</div>
 					</div>
 				{/if}
@@ -150,11 +225,11 @@
 						Необходимые материалы
 					</h2>
 					<button class="rounded underline text-gray-700"
-							onclick={() => { }}><i class="fa-solid fa-plus"></i>Добавить</button>
+							onclick={async () => {await SetOfMaterialAddForm()}}><i class="fa-solid fa-plus"></i>Добавить</button>
 				</div>
 				<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
-					{#if data.workshop?.sets_of_material.length}
-						{#each data.workshop?.sets_of_material as set_of_material}
+					{#if workshopData?.sets_of_material.length}
+						{#each workshopData?.sets_of_material as set_of_material}
 							<button class="flex text-left items-center gap-2 h-auto">
 								<i class="fa-regular fa-pen-to-square"></i>
 								<div>
@@ -210,6 +285,96 @@
 		</div>
 	</main>
 </SectionWraper>
+
+{#if setOfMaterialAddForm}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
+		transition:fade
+	>
+		<div
+			class="animate-fade-in relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+			transition:fly={{ y: 100, duration: 300 }}
+		>
+			<button
+				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+				onclick={() => {
+					setOfMaterialAddForm = null;
+					materialAddForm = null;
+					selectedMaterial = null;
+				}}>✕</button
+			>
+			<h2 class="mb-2 text-2xl font-light">Окно редактирования</h2>
+			<div class="flex flex-col gap-2">
+				<div>
+					<p class="text-gray-700 font-light">Материал</p>
+					<select name="techniques" bind:value={selectedMaterial}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					>
+						{#each materials as material}
+							<option value={material}>{material.name}</option>
+						{/each}
+							<option value={null}>Новый</option>
+					</select>
+				</div>
+				{#if materialAddForm && (selectedMaterial === null) }
+					<div>
+						<p class="text-gray-700 font-light">Название</p>
+						<input
+							bind:value={materialAddForm.name}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						/>
+					</div>
+					<div>
+						<p class="text-gray-700 font-light">Описание</p>
+						<textarea
+							bind:value={materialAddForm.discription}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						></textarea>
+					</div>
+					<div>
+						<p class="text-gray-700 font-light">Цена</p>
+						<input
+							type="number"
+							bind:value={materialAddForm.cost}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						/>
+					</div>
+					<div>
+						<p class="text-gray-700 font-light">Тип</p>
+						<input
+							bind:value={materialAddForm.type}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						/>
+					</div>
+				{/if}
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<p class="text-gray-700 font-light">Колличество</p>
+						<input
+							type="number"
+							bind:value={setOfMaterialAddForm.quantity}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						/>
+					</div>
+					<div>
+						<p class="text-gray-700 font-light">Единицы измерения</p>
+						<input
+							bind:value={setOfMaterialAddForm.unit}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+							/>
+					</div>
+				</div>
+				<button
+					onclick={AddSetOfMaterialAddForm}
+					class="w-full mt-2 bg-gray-200/80"
+				>
+					Добавить
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 
 {#if selectedSession}
 	<div
