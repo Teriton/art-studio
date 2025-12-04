@@ -627,5 +627,33 @@ class AsyncORM:
             await session.commit()
 
             return True
-
+    @staticmethod
+    async def delte_set_of_material_admin(set_of_material: modelsDTO.SetOfMaterialRawDTO):
+        async with async_session_factory() as session:
+            set_of_material_orm = await session.get(
+                SetOfMaterialORM,
+                (set_of_material.workshop_id, set_of_material.material_id)
+            )
+            if not set_of_material_orm:
+                return False
+            
+            await session.delete(set_of_material_orm)
+            await session.commit()
+            return True
         
+    @staticmethod
+    async def update_set_of_material_admin(set_of_material: modelsDTO.SetOfMaterialRawDTO) -> bool:
+        async with async_session_factory() as session:
+            set_of_material_orm = await session.get(
+                SetOfMaterialORM,
+                (set_of_material.workshop_id, set_of_material.material_id)
+            )
+            if not set_of_material_orm:
+                return False
+            
+            set_of_material_orm.quantity = set_of_material.quantity
+            set_of_material_orm.unit = set_of_material.unit
+
+            await session.commit()
+
+            return True

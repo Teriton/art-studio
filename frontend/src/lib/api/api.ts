@@ -356,6 +356,7 @@ export async function addMaterialAdmin(material: MaterialAddDTO): Promise<Materi
 	const data = await res.json();
 	return data as MaterialDTO;
 }
+
 export async function addSetOfMaterialAdmin(setOfMaterial: SetOfMaterialRawDTO) {
 	const res = await fetch(`http://127.0.0.1:8000/admin/setOfMaterial`, {
 		method: 'POST',
@@ -366,3 +367,32 @@ export async function addSetOfMaterialAdmin(setOfMaterial: SetOfMaterialRawDTO) 
 	return res.body;
 }
 
+export async function delteSetOfMaterial(setOfMaterial: SetOfMaterialRawDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/setOfMaterial`,{
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(setOfMaterial)
+	});
+	if (res.status === 401) {
+		return false; 
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
+}
+
+export async function updateSetOfMaterial(setOfMaterial: SetOfMaterialRawDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/setOfMaterial`,{
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(setOfMaterial)
+	});
+	if (res.status === 401) {
+		return false; 
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
+}

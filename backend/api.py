@@ -461,6 +461,47 @@ def create_fastapi_app():
                 "success": False
             }
         )
+    
+    @app.delete("/admin/setOfMaterial")
+    async def delte_set_of_material_admin(
+        set_of_material: modelsDTO.SetOfMaterialRawDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.delte_set_of_material_admin(set_of_material):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+    
+    @app.put("/admin/setOfMaterial")
+    async def update_set_of_material_admin(
+        set_of_material: modelsDTO.SetOfMaterialRawDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.update_set_of_material_admin(set_of_material):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+
     return app
 
 

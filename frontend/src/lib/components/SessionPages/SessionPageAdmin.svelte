@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { fetchNumberOfSeatsAvalable, bookSessionPost, fetchActiveUser, fetchMastersAdmin, fetchTechniquesAdmin, fetchMaterialsAdmin, updateWorkshopById, addMaterialAdmin, addSetOfMaterialAdmin } from '$lib/api/api.js';
+	import { fetchNumberOfSeatsAvalable, bookSessionPost, fetchActiveUser, fetchMastersAdmin, fetchTechniquesAdmin, fetchMaterialsAdmin, updateWorkshopById, addMaterialAdmin, addSetOfMaterialAdmin, delteSetOfMaterial, updateSetOfMaterial } from '$lib/api/api.js';
 	import SectionWraper from '$lib/components/SectionWraper.svelte';
 	import { Status, type MasterDTO, type MaterialAddDTO, type MaterialDTO, type ScheduleDTO, type Seats, type SetOfMaterialDTO, type SetOfMaterialRawDTO, type TechniqueDTO, type WorkshopAddDTO, type WorkshopAllRelDTO, type WorkshopDTO } from '$lib/models.js';
 	import { onMount } from 'svelte';
@@ -9,10 +9,12 @@
 	let {data} = $props()
 
 	let workshopData: WorkshopAllRelDTO | null = $state(null);
+	let error:string =$state("");
 
 	let workshopEditForm: WorkshopAddDTO | null = $state(null);
 	let workshopBuf: WorkshopAllRelDTO | null = $state(null);
 	let setOfMaterialAddForm: SetOfMaterialRawDTO | null = $state(null)
+	let setOfMaterialEditForm: SetOfMaterialRawDTO | null = $state(null)
 	let materialAddForm: MaterialAddDTO | null = $state(null);
 	let selectedMaster: MasterDTO | null = $state(null);
 	let selectedTechnique: TechniqueDTO | null = $state(null);
@@ -39,9 +41,10 @@
 	}
 
 	async function AddSetOfMaterialAddForm() {
+		let  newMaterial: MaterialDTO | null = null;
 		if (setOfMaterialAddForm) {
 			if (!selectedMaterial && materialAddForm) {
-				const newMaterial: MaterialDTO | null = await addMaterialAdmin(materialAddForm);
+				newMaterial = await addMaterialAdmin(materialAddForm);
 				if (newMaterial) {
 					setOfMaterialAddForm.material_id = newMaterial.id;
 				}
@@ -54,7 +57,7 @@
 			}
 			const fullSetOfMaterial: SetOfMaterialDTO = {
 			material: selectedMaterial ? selectedMaterial : {
-				id: -1,
+				id: newMaterial ? newMaterial.id : -1,
 				...materialAddForm
 			} as MaterialDTO,
 			...setOfMaterialAddForm,
@@ -64,6 +67,26 @@
 			materialAddForm = null;
 			selectedMaterial = null;
 		}
+	}
+
+	async function deleteSetOfMaterialEditForm(material: MaterialDTO) {
+		if (workshopData && setOfMaterialEditForm){
+			workshopData.sets_of_material = workshopData.sets_of_material.filter((x) => x.material_id !== material.id);
+			const res = await delteSetOfMaterial(setOfMaterialEditForm);
+			if (!res) error = "Unluck";
+		}
+		setOfMaterialEditForm = null;
+		selectedMaterial = null;
+	}
+
+	async function saveSetOfMaterialEditForm(material: MaterialDTO) {
+		if (workshopData && setOfMaterialEditForm) {
+			workshopData.sets_of_material.filter((x) => (x.material_id == setOfMaterialEditForm?.material_id && x.workshop_id == setOfMaterialEditForm?.workshop_id))[0] = {material: material, ...setOfMaterialEditForm};
+			const res = await updateSetOfMaterial(setOfMaterialEditForm);
+			if (!res) error = "Unluck";
+		}
+		setOfMaterialEditForm = null;
+		selectedMaterial = null;
 	}
 
 	async function saveWorkshopForm() {
@@ -122,6 +145,7 @@
 
 	async function loadData() {
 		workshopData = data.workshop;
+		error = data.error;
 	}
 
 	onMount(async ()=> {await fetchData(); await loadData()});
@@ -230,7 +254,9 @@
 				<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
 					{#if workshopData?.sets_of_material.length}
 						{#each workshopData?.sets_of_material as set_of_material}
-							<button class="flex text-left items-center gap-2 h-auto">
+							<button
+								onclick={()=>{setOfMaterialEditForm = set_of_material; selectedMaterial = set_of_material.material}}
+								class="flex text-left items-center gap-2 h-auto">
 								<i class="fa-regular fa-pen-to-square"></i>
 								<div>
 									<h4 class="text-sm text-gray-500">{set_of_material.material.name}</h4>
@@ -375,6 +401,69 @@
 	</div>
 {/if}
 
+{#if setOfMaterialEditForm}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
+		transition:fade
+	>
+		<div
+			class="animate-fade-in relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+			transition:fly={{ y: 100, duration: 300 }}
+		>
+			<button
+				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+				onclick={() => {
+					setOfMaterialEditForm = null;
+					selectedMaterial = null;
+				}}>✕</button
+			>
+			<h2 class="mb-2 text-2xl font-light">Окно редактирования</h2>
+			<div class="flex flex-col gap-2">
+				<div>
+					<p class="text-gray-700 font-light">Материал</p>
+					<h2 class="w-full  border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none">
+						{selectedMaterial?.name}
+					</h2>
+				</div>
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<p class="text-gray-700 font-light">Колличество</p>
+						<input
+							type="number"
+							bind:value={setOfMaterialEditForm.quantity}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						/>
+					</div>
+					<div>
+						<p class="text-gray-700 font-light">Единицы измерения</p>
+						<input
+							bind:value={setOfMaterialEditForm.unit}
+							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+							/>
+					</div>
+				</div>
+				<div class="flex gap-4">
+					<button
+						onclick={async ()=>{
+								if (selectedMaterial) await saveSetOfMaterialEditForm(selectedMaterial);
+								}}
+						class="w-full mt-2 bg-gray-200/80"
+					>
+						Сохранить
+					</button>
+						<button	
+							onclick={async ()=>{
+								if (selectedMaterial) await deleteSetOfMaterialEditForm(selectedMaterial);
+								}}
+							class="w-full mt-2 bg-gray-200/80"
+							>
+							Удалить
+						</button>
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
 
 {#if selectedSession}
 	<div
