@@ -1,16 +1,21 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { fetchNumberOfSeatsAvalable, bookSessionPost, fetchActiveUser, fetchMastersAdmin, fetchTechniquesAdmin, fetchMaterialsAdmin, updateWorkshopById, addMaterialAdmin, addSetOfMaterialAdmin, delteSetOfMaterial, updateSetOfMaterial } from '$lib/api/api.js';
+	import { fetchNumberOfSeatsAvalable, bookSessionPost, fetchActiveUser, fetchMastersAdmin, fetchTechniquesAdmin, fetchMaterialsAdmin, updateWorkshopById, addMaterialAdmin, addSetOfMaterialAdmin, delteSetOfMaterial, updateSetOfMaterial, addSessionAdmin, fetchWorkshopById, updateSessionById, delteSessionById } from '$lib/api/api.js';
 	import SectionWraper from '$lib/components/SectionWraper.svelte';
-	import { Status, type MasterDTO, type MaterialAddDTO, type MaterialDTO, type ScheduleDTO, type Seats, type SetOfMaterialDTO, type SetOfMaterialRawDTO, type TechniqueDTO, type WorkshopAddDTO, type WorkshopAllRelDTO, type WorkshopDTO } from '$lib/models.js';
+	import { Status, type MasterDTO, type MaterialAddDTO, type MaterialDTO, type ScheduleAddDTO, type ScheduleDTO, type Seats, type SetOfMaterialDTO, type SetOfMaterialRawDTO, type TechniqueDTO, type WorkshopAddDTO, type WorkshopAllRelDTO, type WorkshopDTO } from '$lib/models.js';
 	import { onMount } from 'svelte';
 	import {fade, fly} from "svelte/transition";
 	
 	let {data} = $props()
 
 	let workshopData: WorkshopAllRelDTO | null = $state(null);
+	let sessions: Map<string, ScheduleDTO[]> | null = $state(null);
 	let error:string =$state("");
 
+	let sessionAddForm: ScheduleAddDTO | null = $state(null);
+	let sessionDate: string = $state("");
+	let sessionTime: string = $state("");
+	let sessionEditForm: ScheduleDTO | null = $state(null);
 	let workshopEditForm: WorkshopAddDTO | null = $state(null);
 	let workshopBuf: WorkshopAllRelDTO | null = $state(null);
 	let setOfMaterialAddForm: SetOfMaterialRawDTO | null = $state(null)
@@ -40,6 +45,30 @@
 		materials = await fetchMaterialsAdmin();
 	}
 
+	async function SessionAddForm() {
+		if (workshopData) {
+			sessionAddForm = {
+				workshop_id: workshopData?.id,
+				date: "",
+				location: "",
+				numberOfSeats: 0,
+			}
+			sessionDate = "";
+			sessionTime = "";
+		}
+	}
+
+	async function AddSessionAddForm() {
+		if (sessionAddForm && sessionDate && sessionTime) {
+			sessionAddForm.date = sessionDate+"T"+sessionTime
+			if (!(await addSessionAdmin(sessionAddForm))) {
+				error = "Error while adding session";
+			}
+			await fetchSessions()
+		}
+		sessionAddForm = null;
+	}
+
 	async function AddSetOfMaterialAddForm() {
 		let  newMaterial: MaterialDTO | null = null;
 		if (setOfMaterialAddForm) {
@@ -53,7 +82,7 @@
 			}
 			setOfMaterialAddForm.workshop_id = workshopData ? workshopData.id : -1;
 			if (!(await addSetOfMaterialAdmin(setOfMaterialAddForm))) {
-				data.error = "Ошибка добавления набора материалов";
+				error = "Ошибка добавления набора материалов";
 			}
 			const fullSetOfMaterial: SetOfMaterialDTO = {
 			material: selectedMaterial ? selectedMaterial : {
@@ -81,7 +110,18 @@
 
 	async function saveSetOfMaterialEditForm(material: MaterialDTO) {
 		if (workshopData && setOfMaterialEditForm) {
-			workshopData.sets_of_material.filter((x) => (x.material_id == setOfMaterialEditForm?.material_id && x.workshop_id == setOfMaterialEditForm?.workshop_id))[0] = {material: material, ...setOfMaterialEditForm};
+			const index = workshopData.sets_of_material.findIndex(
+				x => x.material_id === setOfMaterialEditForm?.material_id &&
+					x.workshop_id === setOfMaterialEditForm?.workshop_id
+			);
+
+			if (index !== -1) {
+				workshopData.sets_of_material[index] = {
+					material: material,
+					...setOfMaterialEditForm
+				};
+			}
+
 			const res = await updateSetOfMaterial(setOfMaterialEditForm);
 			if (!res) error = "Unluck";
 		}
@@ -95,7 +135,7 @@
 			workshopEditForm.technique_id = selectedTechnique.id;
 
 			if (!(await updateWorkshopById(workshopData ? workshopData.id : -1,workshopEditForm))) {
-				data.error = "Ошибка обновления";
+				error = "Ошибка обновления";
 			}
 			workshopData = {...workshopBuf, ...workshopEditForm};
 			workshopData.master_id =  selectedMaster.id;
@@ -116,21 +156,54 @@
 		selectedTechnique = techniques ? techniques.filter(function(technique){ return technique.id == workshopEditForm?.technique_id; })[0] : null;
 	}
 
-	let selectedSession: ScheduleDTO | null = $state(null);
 	let seats:Seats = $state({
 		allSeats: 0,
 		occupiedSeats:	0,
 	});
-	async function selectSession(session:ScheduleDTO) {
-		selectedSession = session
-		seats = await fetchNumberOfSeatsAvalable(session.id)
+
+	async function SessionEditForm(session:ScheduleDTO){
+		sessionEditForm = session;
+		seats = await fetchNumberOfSeatsAvalable(session.id);
+		const utcDate = new Date(sessionEditForm.date);
+		const isoString = utcDate.toISOString();
+		const dateTime = isoString.split("T");
+		sessionDate = dateTime[0];
+		sessionTime = dateTime[1].slice(0,5);
+	}
+	
+	async function UpdateSessionEditForm(){
+		if (sessionEditForm && sessionDate && sessionTime) {
+			sessionEditForm.date = sessionDate+"T"+sessionTime
+			if (sessionEditForm.numberOfSeats < seats.occupiedSeats) {
+				alert("Количество мест не может быть меньше уже занятых мест");
+				return;
+			}
+			if (!(await updateSessionById(sessionEditForm.id,sessionEditForm))) {
+				error = "Error while updating session";
+			}
+		}
+		sessionEditForm = null;
+		await fetchSessions();
 	}
 
-	async function bookSession() {
-		if (selectedSession === null) return;
-		const res = await bookSessionPost(selectedSession.id)
-		if (res === null) goto("/login");
-		else goto("/orders")
+	async function DeleteSessionEditForm() {
+		if (sessionEditForm){
+			if (!(await delteSessionById(sessionEditForm.id))) {
+				error = "Error while deleting session";
+			}
+		}
+		sessionEditForm = null;
+		await fetchSessions();
+	}
+
+
+	async function fetchSessions() {
+		if (workshopData){
+			const workshop = await fetchWorkshopById(workshopData?.id);
+			if (workshop != null) {
+				sessions = organizeSchedulesByDate(workshop.sessions);
+			}
+		}
 	}
 
 	async function fetchData() {
@@ -146,6 +219,34 @@
 	async function loadData() {
 		workshopData = data.workshop;
 		error = data.error;
+		sessions = data.sessions;
+	}
+
+	function organizeSchedulesByDate(schedules: ScheduleDTO[]): Map<string, ScheduleDTO[]> {
+		if (!schedules.length) {
+			return new Map();
+		}
+
+		// Сортируем все расписания по полной дате (преобразуем строки в Date объекты)
+		const sorted = [...schedules].sort((a, b) => {
+			const dateA = new Date(a.date).getTime();
+			const dateB = new Date(b.date).getTime();
+			return dateA - dateB;
+		});
+
+		const result = new Map<string, ScheduleDTO[]>();
+
+		for (const schedule of sorted) {
+			const dateKey = new Date(schedule.date).toISOString().split('T')[0];
+
+			if (!result.has(dateKey)) {
+				result.set(dateKey, []);
+			}
+
+			result.get(dateKey)!.push(schedule);
+		}
+
+		return result;
 	}
 
 	onMount(async ()=> {await fetchData(); await loadData()});
@@ -154,7 +255,7 @@
 <SectionWraper>
 	<main class="mx-auto mt-10 w-full max-w-5xl px-6 py-12">
 		<div class="flex flex-col rounded-xl bg-white/80 p-6 shadow-md backdrop-blur-md">
-			{#if !data.error}
+			{#if !error}
 				{#if workshopEditForm}
 				<div class="flex">
 						<input class="md:text-1xl mx-4 mb-6 text-3xl font-semibold text-black md:mb-0 rounded" bind:value={workshopEditForm.title}/>
@@ -255,7 +356,7 @@
 					{#if workshopData?.sets_of_material.length}
 						{#each workshopData?.sets_of_material as set_of_material}
 							<button
-								onclick={()=>{setOfMaterialEditForm = set_of_material; selectedMaterial = set_of_material.material}}
+								onclick={()=>{setOfMaterialEditForm = JSON.parse(JSON.stringify(set_of_material));; selectedMaterial = set_of_material.material}}
 								class="flex text-left items-center gap-2 h-auto">
 								<i class="fa-regular fa-pen-to-square"></i>
 								<div>
@@ -278,20 +379,18 @@
 							Расписание сессий
 						</h2>
 						<button class="rounded underline text-gray-700"
-							onclick={() => { }}><i class="fa-solid fa-plus"></i>Добавить</button>
+							onclick={SessionAddForm}><i class="fa-solid fa-plus"></i>Добавить</button>
 					</div>
 					<div class="flex flex-col gap-3 rounded-3xl bg-gray-400/40 p-4 shadow-xl">
-						{#if data.sessions.size}
-							
-							{#each data.sessions as sessionDate}
+						{#if sessions?.size}
+							{#each sessions as sessionDate}
 								<h2 class="mx-4 text-2xl font-semibold text-black md:text-xl">{sessionDate[0]}</h2>
 								<div class="mx-4 flex gap-4">
 									{#each sessionDate[1] as session}
 										<button class=" rounded-2xl bg-red-400 p-2 px-4 duration-200 hover:cursor-pointer hover:bg-red-300"
-												onclick={() => selectSession(session)}
+												onclick={() => SessionEditForm(session)}
 										>
-											<div
-											>
+											<div>											
 												<p>{new Date(session.date).toISOString().split('T')[1].slice(0, 5)}</p>
 											</div>
 										</button>
@@ -305,7 +404,7 @@
 				</div>
 			{:else}
 				<h1 class="md:text-1xl fosnt-semibold mx-4 mb-6 text-3xl text-black md:mb-0">
-					Error {data.error}
+					Error {error}
 				</h1>
 			{/if}
 		</div>
@@ -465,7 +564,7 @@
 	</div>
 {/if}
 
-{#if selectedSession}
+{#if sessionAddForm}
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
 		transition:fade
@@ -477,29 +576,115 @@
 			<button
 				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
 				onclick={() => {
-					selectedSession = null;
+					sessionAddForm = null;
 				}}>✕</button
 			>
 			<div class="flex flex-col gap-4 md:gap-2">
 				<h2 class="mb-2 text-2xl font-bold">Основная информация</h2>
-				<p class="text-gray-700">
-					<span class=" text-black">Место проведения:</span>
-					{selectedSession.location} 
-				</p>
-				<p class="text-gray-700">
-					<span class=" text-black">Время:</span>
-					{selectedSession.date}
-				</p>
-				<p class="text-gray-700">
-					<span class=" text-black">Колличество мест:</span>
-					{seats.allSeats}/{seats.occupiedSeats}
-				</p>
+				<div>
+					<p class="text-gray-700 font-light">Место проведения</p>
+					<input
+						bind:value={sessionAddForm.location}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Дата</p>
+					<input
+						type="date"
+						bind:value={sessionDate}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Время</p>
+					<input
+						type="time"
+						bind:value={sessionTime}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Колличество мест</p>
+					<input
+						bind:value={sessionAddForm.numberOfSeats}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
 				<button
-					onclick={async () => await bookSession()}
 					class="block w-full border-amber-50 text-center transition-colors"
+					onclick={AddSessionAddForm}
 				>
-					Забронировать
+					Добавить
 				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
+
+{#if sessionEditForm}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
+		transition:fade
+	>
+		<div
+			class="animate-fade-in relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+			transition:fly={{ y: 100, duration: 300 }}
+		>
+			<button
+				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+				onclick={() => {
+					sessionEditForm = null;
+				}}>✕</button
+			>
+			
+			<div class="flex flex-col gap-4 md:gap-2">
+				<h2 class="mb-2 text-2xl font-bold">Основная информация</h2>
+				<div>
+					<p class="text-gray-700 font-light">Место проведения</p>
+					<input
+						bind:value={sessionEditForm.location}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Дата</p>
+					<input
+						type="date"
+						bind:value={sessionDate}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Время</p>
+					<input
+						type="time"
+						bind:value={sessionTime}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Колличество мест, уже занято {seats.occupiedSeats}</p>
+					<input
+						bind:value={sessionEditForm.numberOfSeats}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
+				</div>
+				<div class="flex gap-4">
+					<button
+						onclick={UpdateSessionEditForm}
+						class="w-full mt-2 bg-gray-200/80"
+					>
+						Сохранить
+					</button>
+					<button	
+						onclick={DeleteSessionEditForm}
+						class="w-full mt-2 bg-gray-200/80"
+						>
+						Удалить
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>

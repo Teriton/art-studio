@@ -627,6 +627,8 @@ class AsyncORM:
             await session.commit()
 
             return True
+        
+
     @staticmethod
     async def delte_set_of_material_admin(set_of_material: modelsDTO.SetOfMaterialRawDTO):
         async with async_session_factory() as session:
@@ -653,6 +655,49 @@ class AsyncORM:
             
             set_of_material_orm.quantity = set_of_material.quantity
             set_of_material_orm.unit = set_of_material.unit
+
+            await session.commit()
+
+            return True
+        
+    @staticmethod
+    async def add_session_admin(schedule: modelsDTO.ScheduleAddDTO):
+        async with async_session_factory() as session:
+            session_orm = ScheduleORM(
+                workshop_id = schedule.workshop_id,
+                date = schedule.date + timedelta(hours=3),
+                location = schedule.location,
+                numberOfSeats = schedule.numberOfSeats
+            )
+            session.add(session_orm)
+            await session.commit()
+
+            return True
+        
+    @staticmethod
+    async def delte_session_admin(session_id: int) -> bool:
+        async with async_session_factory() as session:
+            session_orm = await session.get(ScheduleORM, session_id)
+            
+            if not session_orm:
+                return False
+            
+            await session.delete(session_orm)
+            await session.commit()
+            return True
+        
+    @staticmethod
+    async def update_session_admin(session_id: int, schedule: modelsDTO.ScheduleAddDTO) -> bool:
+        async with async_session_factory() as session:
+            stmt = select(ScheduleORM).filter_by(id=session_id)
+            res = await session.execute(stmt)
+            session_orm = res.scalar_one_or_none()
+            if not session_orm:
+                return False
+
+            session_orm.date = schedule.date + timedelta(hours=3)
+            session_orm.location =  schedule.location
+            session_orm.numberOfSeats = schedule.numberOfSeats
 
             await session.commit()
 

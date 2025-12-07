@@ -78,6 +78,7 @@ declare module '$env/static/private' {
 	export const XDG_CURRENT_DESKTOP: string;
 	export const NH_FLAKE: string;
 	export const npm_package_version: string;
+	export const VIRTUAL_ENV: string;
 	export const PYTHONSTARTUP: string;
 	export const WAYLAND_DISPLAY: string;
 	export const GIO_EXTRA_MODULES: string;
@@ -117,6 +118,7 @@ declare module '$env/static/private' {
 	export const __NIXOS_SET_ENVIRONMENT_DONE: string;
 	export const XDG_VTNR: string;
 	export const XDG_SESSION_ID: string;
+	export const VIRTUAL_ENV_PROMPT: string;
 	export const LOCALE_ARCHIVE: string;
 	export const LESSKEYIN_SYSTEM: string;
 	export const npm_config_user_agent: string;
@@ -227,6 +229,7 @@ declare module '$env/dynamic/private' {
 		XDG_CURRENT_DESKTOP: string;
 		NH_FLAKE: string;
 		npm_package_version: string;
+		VIRTUAL_ENV: string;
 		PYTHONSTARTUP: string;
 		WAYLAND_DISPLAY: string;
 		GIO_EXTRA_MODULES: string;
@@ -266,6 +269,7 @@ declare module '$env/dynamic/private' {
 		__NIXOS_SET_ENVIRONMENT_DONE: string;
 		XDG_VTNR: string;
 		XDG_SESSION_ID: string;
+		VIRTUAL_ENV_PROMPT: string;
 		LOCALE_ARCHIVE: string;
 		LESSKEYIN_SYSTEM: string;
 		npm_config_user_agent: string;

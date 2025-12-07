@@ -7,6 +7,7 @@ import type {
 	PaymentDTO,
 	PaymentMethod,
 	PaymentOrderDTO,
+	ScheduleAddDTO,
 	Seats,
 	SetOfMaterialRawDTO,
 	TechniqueDTO,
@@ -395,4 +396,38 @@ export async function updateSetOfMaterial(setOfMaterial: SetOfMaterialRawDTO) {
 		throw new Error(`Ошибка ${res.text}`);
 	}
 	return true
+}
+
+export async function addSessionAdmin(session: ScheduleAddDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/session`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(session)
+	});
+	return res.body;
+}
+
+export async function delteSessionById(sessionId:number): Promise<boolean> {
+	const res = await fetch(`http://127.0.0.1:8000/admin/session?session_id=${sessionId}`,{
+		method: 'DELETE',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+	});
+	if (res.status === 401) {
+		return false; // Нет активного пользователя
+	} else if (!res.ok) {
+		throw new Error(`Ошибка ${res.text}`);
+	}
+	return true
+}
+
+export async function updateSessionById(sessionId:number ,session: ScheduleAddDTO) {
+	const res = await fetch(`http://127.0.0.1:8000/admin/session?session_id=${sessionId}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify(session)
+	});
+	return res.body;
 }

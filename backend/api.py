@@ -501,6 +501,67 @@ def create_fastapi_app():
                 "success": False
             }
         )
+    
+    @app.post("/admin/session")
+    async def add_session_admin(
+        session: modelsDTO.ScheduleAddDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.add_session_admin(session):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+    
+    @app.delete("/admin/session")
+    async def delte_session_admin(
+        session_id: int,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.delte_session_admin(session_id):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
+    
+    @app.put("/admin/session")
+    async def update_session_admin(
+        session_id: int,
+        session: modelsDTO.ScheduleAddDTO,
+        current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
+    ):
+        if not current_user.admin:
+            raise HTTPException(status_code=401, detail="Not allowd")
+      
+        if await AsyncORM.update_session_admin(session_id, session):
+            return JSONResponse(
+                {
+                    "success": True
+                }
+            )
+        return JSONResponse(
+            {
+                "success": False
+            }
+        )
 
     return app
 
