@@ -117,7 +117,7 @@ def create_fastapi_app():
         masters = await AsyncORM.get_all_masters()
         return masters
     
-    @app.post("/token")
+    @app.post("/token", tags=["Регистрация"])
     async def login_for_acess_token(
         form_data: Annotated[OAuth2PasswordRequestForm,Depends()],
     ):
@@ -141,7 +141,7 @@ def create_fastapi_app():
         )
         return response
 
-    @app.get("/login")
+    @app.get("/login", tags=["Регистрация"])
     async def login_test(login: str, psw: str):
         print(password_hash.hash(psw))
         if not password_hash.verify(psw, "$argon2id$v=19$m=65536,t=3,p=4$9EmBZZ/svu/BFoZLMwQ7sw$a2vZxkTGsd0vfdu/RbORlpgc8GEEsDOjPY0HBf3i9Og"):
@@ -151,13 +151,13 @@ def create_fastapi_app():
             raise HTTPException(status_code=400, detail="User not found")
         return user
     
-    @app.post("/logout")
+    @app.post("/logout", tags=["Регистрация"])
     async def logout():
         response = JSONResponse({"ok": True})
         response.delete_cookie("access_token")
         return response
     
-    @app.post("/signup")
+    @app.post("/signup", tags=["Регистрация"])
     async def signup(user: modelsDTO.UserAddDTO):
         existing_user = await AsyncORM.get_user_by_login(user.login)
         if existing_user:
@@ -168,13 +168,13 @@ def create_fastapi_app():
         return new_user
 
 
-    @app.get("/user/info")
+    @app.get("/user/info", tags=["Пользователь"])
     async def user_info(
         current_user: Annotated[modelsDTO.UserDTO,Depends(get_current_active_user)]
     ):
         return current_user
 
-    @app.put("/user/updateInfo")
+    @app.put("/user/updateInfo", tags=["Пользователь"])
     async def update_user(
         updated_user: modelsDTO.UserAddDTO,
         current_user: Annotated[modelsDTO.UserDTO,Depends(get_current_active_user)]
@@ -183,7 +183,7 @@ def create_fastapi_app():
         await broadcast_users()
         return user
     
-    @app.get("/sessionSeatsAvailable/{session_id}")
+    @app.get("/sessionSeatsAvailable/{session_id}", tags=["Расписание"])
     async def session_seats_available(
         session_id: int
     ):
@@ -202,7 +202,7 @@ def create_fastapi_app():
                 }
             )
 
-    @app.post("/bookSession")
+    @app.post("/bookSession", tags=["Расписание"])
     async def book_session_endpoint(
         session_id: int,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -222,7 +222,7 @@ def create_fastapi_app():
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Booking failed: {str(e)}")
         
-    @app.delete("/admin/user")
+    @app.delete("/admin/user", tags=["Админ"])
     async def delete_user_admin(
         user_id: int,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -265,7 +265,7 @@ def create_fastapi_app():
             connection_manager.disconnect(websocket)
             # await connection_manager.broadcast(f"Client #{client_id} left the chat")
 
-    @app.get("/admin/masters")
+    @app.get("/admin/masters", tags=["Админ"])
     async def admin_masters(
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
     ):
@@ -274,7 +274,7 @@ def create_fastapi_app():
         masters = await AsyncORM.get_all_masters()
         return masters
 
-    @app.delete("/admin/master")
+    @app.delete("/admin/master", tags=["Админ"])
     async def delte_master_admin(
         master_id: int,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -294,7 +294,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.put("/admin/master")
+    @app.put("/admin/master", tags=["Админ"])
     async def update_master_admin(
         master_id: int,
         master: modelsDTO.MasterAddDTO,
@@ -315,7 +315,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.post("/admin/master")
+    @app.post("/admin/master", tags=["Админ"])
     async def add_master_admin(
         master: modelsDTO.MasterAddDTO,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -336,7 +336,7 @@ def create_fastapi_app():
         )
 
 
-    @app.get("/admin/workshops")
+    @app.get("/admin/workshops", tags=["Админ"])
     async def admin_workshops(
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
     ):
@@ -345,7 +345,7 @@ def create_fastapi_app():
         workshops = await AsyncORM.get_workshops()
         return workshops
 
-    @app.delete("/admin/workshop")
+    @app.delete("/admin/workshop", tags=["Админ"])
     async def delte_workshop_admin(
         workshop_id: int,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -365,7 +365,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.post("/admin/workshop")
+    @app.post("/admin/workshop", tags=["Админ"])
     async def add_workshop_admin(
         workshop: modelsDTO.WorkshopAddDTO,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -385,7 +385,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.put("/admin/workshop")
+    @app.put("/admin/workshop", tags=["Админ"])
     async def update_workshop_admin(
         workshop_id: int,
         workshop: modelsDTO.WorkshopAddDTO,
@@ -407,7 +407,7 @@ def create_fastapi_app():
         )
             
 
-    @app.get("/admin/techniques")
+    @app.get("/admin/techniques", tags=["Админ"])
     async def admin_techniques(
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
     ):
@@ -416,7 +416,7 @@ def create_fastapi_app():
         techniques = await AsyncORM.get_techniques()
         return techniques
     
-    @app.get("/admin/materials")
+    @app.get("/admin/materials", tags=["Админ"])
     async def admin_materials(
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
     ):
@@ -425,7 +425,7 @@ def create_fastapi_app():
         materials = await AsyncORM.get_materials()
         return materials
 
-    @app.post("/admin/material")
+    @app.post("/admin/material", tags=["Админ"])
     async def add_material_admin(
         material: modelsDTO.MaterialAddDTO,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -442,7 +442,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.post("/admin/setOfMaterial")
+    @app.post("/admin/setOfMaterial", tags=["Админ"])
     async def add_set_of_material_admin(
         set_of_material: modelsDTO.SetOfMaterialRawDTO,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -462,7 +462,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.delete("/admin/setOfMaterial")
+    @app.delete("/admin/setOfMaterial", tags=["Админ"])
     async def delte_set_of_material_admin(
         set_of_material: modelsDTO.SetOfMaterialRawDTO,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -482,7 +482,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.put("/admin/setOfMaterial")
+    @app.put("/admin/setOfMaterial", tags=["Админ"])
     async def update_set_of_material_admin(
         set_of_material: modelsDTO.SetOfMaterialRawDTO,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -502,7 +502,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.post("/admin/session")
+    @app.post("/admin/session", tags=["Админ"])
     async def add_session_admin(
         session: modelsDTO.ScheduleAddDTO,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -522,7 +522,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.delete("/admin/session")
+    @app.delete("/admin/session", tags=["Админ"])
     async def delte_session_admin(
         session_id: int,
         current_user: Annotated[modelsDTO.UserDTO, Depends(get_current_active_user)]
@@ -542,7 +542,7 @@ def create_fastapi_app():
             }
         )
     
-    @app.put("/admin/session")
+    @app.put("/admin/session", tags=["Админ"])
     async def update_session_admin(
         session_id: int,
         session: modelsDTO.ScheduleAddDTO,
