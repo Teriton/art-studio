@@ -5,6 +5,7 @@
 	import type { WorkshopRelDTO } from '$lib/models';
 	import { fetchWorkshops } from '$lib/api/api';
 	import { fly, fade } from 'svelte/transition';
+	import ScheduleCard from './ScheduleCard.svelte';
 
 	let loading = $state(false);
 	let error: string | null = $state(null);
@@ -60,9 +61,12 @@
 </svelte:head>
 
 <SectionWraper>
-	<main class="mx-auto mt-10 max-w-5xl px-6 py-12">
-		<div class="rounded-xl border border-red-400 bg-red-950/80 p-6 shadow-lg backdrop-blur-md">
-			<h1 class="mb-6 text-center text-2xl font-bold text-red-200">РАСПИСАНИЕ</h1>
+	<main class="mx-auto mt-10 w-full max-w-5xl px-6 py-12">
+		<div class="flex flex-col rounded-xl bg-white/80 p-6 shadow-md backdrop-blur-md">
+			<h1 class="md:text-1xl mx-4ss text-3xl font-semibold text-black">
+				Расписание
+			</h1>
+			<hr class="my-4"/>
 
 			{#if loading}
 				<div class="animate-pulse">
@@ -74,50 +78,10 @@
 			{:else if workshops === null || workshops.length === 0}
 				<div class="py-8 text-center text-gray-400">Нет доступных мастерских.</div>
 			{:else}
-				<div class="overflow-x-auto">
-					<table class="w-full text-left text-sm text-gray-200">
-						<thead class="bg-red-800 text-white uppercase">
-							<tr>
-								<th scope="col" class="px-6 py-3">Название</th>
-								<th scope="col" class="px-6 py-3">Техника</th>
-								<th scope="col" class="px-6 py-3">Уровень</th>
-								<th scope="col" class="px-6 py-3">Продолжительность</th>
-								<th scope="col" class="px-6 py-3">Стоимость</th>
-								<th scope="col" class="px-6 py-3">Бронь</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each workshops as workshop}
-								<tr class=" border-b border-red-700 text-center hover:bg-red-900/50">
-									<td class="px-6 py-4">
-										<p class="font-medium">{workshop.title}</p>
-									</td>
-									<td class="px-6 py-4">
-										{workshop.technique.name}
-									</td>
-									<td class="px-6 py-4">{workshop.dificulty}</td>
-									<td class="px-6 py-4">
-										{workshop.duration}
-									</td>
-									<td class="px-6 py-4">{workshop.fee.toFixed(2)}</td>
-									<td class="space-y-1 px-6 py-4">
-										<button
-											onclick={() => openModal(workshop)}
-											class="block w-full rounded border border-blue-400 bg-red-500/20 px-2 py-1 text-center text-xs text-blue-400 transition-colors"
-										>
-											Детали
-										</button>
-										<button
-											onclick={() => orderPage(workshop.id)}
-											class="block w-full rounded border bg-red-500/20 px-2 py-1 text-center text-xs transition-colors"
-										>
-											Забронировать
-										</button>
-									</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
+				<div class="flex flex-col gap-6">
+				{#each workshops as workshop}
+					<ScheduleCard {workshop} select={async ()=>{await openModal(workshop)}} orderPage={async ()=>{await orderPage(workshop.id)}}></ScheduleCard>
+				{/each}
 				</div>
 			{/if}
 		</div>
