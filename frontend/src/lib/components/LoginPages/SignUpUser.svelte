@@ -28,7 +28,7 @@
 	}
 </script>
 
-<div class="duration-300">
+<div class="flex justify-center duration-300 w-xl">
 	<div
 		class="flex w-full max-w-md flex-col items-center gap-6 rounded-xl bg-amber-50/80 p-10 shadow-xl"
 	>
@@ -74,7 +74,7 @@
 			bind:value={user.email}
 			class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
 		/>
-		<div class="flex w-full items-center gap-1">
+		<div class="gap-1 relative w-full">
 			<input
 				type={passwordVisible ? 'text' : 'password'}
 				name="password"
@@ -83,8 +83,10 @@
 				bind:value={user.psw}
 				class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
 			/>
-
-			<button class="h-full" onclick={() => (passwordVisible = !passwordVisible)}>
+			<button
+				class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 h-full"
+				onclick={() => (passwordVisible = !passwordVisible)}
+			>
 				{#if passwordVisible}
 					<i class="fa-solid fa-eye-slash"></i>
 				{:else}

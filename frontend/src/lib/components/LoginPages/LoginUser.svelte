@@ -26,16 +26,19 @@
 			bind:value={username}
 			class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
 		/>
-		<div class="flex w-full items-center gap-1">
+		<div class="relative w-full">
 			<input
 				type={passwordVisible ? 'text' : 'password'}
 				name="password"
 				id="password"
 				placeholder="Пароль"
 				bind:value={password}
-				class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+				class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 pr-10 focus:ring-2 focus:ring-amber-400 focus:outline-none"
 			/>
-			<button class="h-full" onclick={() => (passwordVisible = !passwordVisible)}>
+			<button
+				class="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+				onclick={() => (passwordVisible = !passwordVisible)}
+			>
 				{#if passwordVisible}
 					<i class="fa-solid fa-eye-slash"></i>
 				{:else}
