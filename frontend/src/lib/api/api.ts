@@ -19,15 +19,37 @@ import type {
 	WorkshopRelDTO
 } from '$lib/models.ts';
 
-export async function fetchClosestWorkshop(): Promise<WorkshopMasterDTO> {
-	const res = await fetch(`http://127.0.0.1:8000/workshopClosest`);
+import { env } from '$env/dynamic/public'
+
+const API_BASE = (env.PUBLIC_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+
+// API base to use from server-side (SSR). Prefer explicit INTERNAL_API_URL from process.env when available.
+let API_SERVER_BASE = API_BASE;
+if (typeof window === 'undefined') {
+	// Node SSR runtime: prefer process.env.INTERNAL_API_URL, fall back to build-time envs
+	API_SERVER_BASE = (process?.env?.INTERNAL_API_URL ?? import.meta.env.VITE_API_URL ?? import.meta.env.PUBLIC_API_URL ?? API_BASE).replace(/\/$/, '');
+}
+
+function buildUrl(path: string, base: string = API_BASE) {
+	if (!path) return base;
+	return `${base}${path.startsWith('/') ? path : '/' + path}`;
+}
+
+async function apiFetch(path: string, options?: RequestInit, base?: string) {
+	return fetch(buildUrl(path, base ?? API_BASE), options);
+}
+
+export async function fetchClosestWorkshop(server: boolean = false): Promise<WorkshopMasterDTO> {
+	const base = server ? API_SERVER_BASE : undefined;
+	const res = await apiFetch(`/workshopClosest`, undefined, base);
 	if (!res.ok) throw new Error('Ошибка загрузки мастеркласса');
 	const data = await res.json();
 	return data as WorkshopMasterDTO;
 }
 
-export async function fetchMasters(): Promise<MasterDTO[]> {
-	const res = await fetch(`http://127.0.0.1:8000/masters`);
+export async function fetchMasters(server: boolean = false): Promise<MasterDTO[]> {
+	const base = server ? API_SERVER_BASE : undefined;
+	const res = await apiFetch(`/masters`, undefined, base);
 	if (!res.ok) throw new Error('Ошибка загрузки мастеров');
 	const data = await res.json();
 	return data as MasterDTO[];
@@ -40,7 +62,7 @@ export async function loginUser(username: string, password: string): Promise<boo
 	params.append('username', username);
 	params.append('password', password);
 
-	const res = await fetch('http://127.0.0.1:8000/token', {
+	const res = await apiFetch('/token', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 		credentials: 'include', // важно, чтобы браузер принял Set-Cookie
@@ -51,7 +73,7 @@ export async function loginUser(username: string, password: string): Promise<boo
 }
 
 export async function fetchActiveUser(): Promise<UserDTO | null> {
-	const res = await fetch(`http://127.0.0.1:8000/user/info`, {
+	const res = await apiFetch(`/user/info`, {
 		method: 'GET',
 		credentials: 'include'
 	});
@@ -65,7 +87,7 @@ export async function fetchActiveUser(): Promise<UserDTO | null> {
 }
 
 export async function logoutUser(): Promise<boolean> {
-	const res = await fetch(`http://127.0.0.1:8000/logout`, {
+	const res = await apiFetch(`/logout`, {
 		method: 'POST',
 		credentials: 'include'
 	});
@@ -73,7 +95,7 @@ export async function logoutUser(): Promise<boolean> {
 }
 
 export async function registerUser(user: UserAddDTO): Promise<boolean> {
-	const res = await fetch('http://127.0.0.1:8000/signup', {
+	const res = await apiFetch('/signup', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
@@ -85,7 +107,7 @@ export async function registerUser(user: UserAddDTO): Promise<boolean> {
 
 export async function updateUserInfo(user: UserAddDTO) {
 	// try to persist — if you have an endpoint, enable this
-	const res = await fetch('http://127.0.0.1:8000/user/updateInfo', {
+	const res = await apiFetch('/user/updateInfo', {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -95,7 +117,7 @@ export async function updateUserInfo(user: UserAddDTO) {
 }
 
 export async function fetchWorkshops(): Promise<WorkshopRelDTO[] | null> {
-	const res = await fetch('http://127.0.0.1:8000/workshops', {
+	const res = await apiFetch('/workshops', {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include'
@@ -109,17 +131,18 @@ export async function fetchWorkshops(): Promise<WorkshopRelDTO[] | null> {
 	return data as WorkshopRelDTO[];
 }
 
-export async function fetchWorkshopById(workshopId: number): Promise<WorkshopAllRelDTO | null> {
-	const res = await fetch(`http://127.0.0.1:8000/workshop/${workshopId}`, {
+export async function fetchWorkshopById(workshopId: number, server: boolean = false): Promise<WorkshopAllRelDTO | null> {
+	const base = server ? API_SERVER_BASE : undefined;
+	const res = await apiFetch(`/workshop/${workshopId}`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
-	});
+	}, base);
 	const data = await res.json();
 	return data as WorkshopAllRelDTO;
 }
 
 export async function fetchNumberOfSeatsAvalable(sessionId: number): Promise<Seats> {
-	const res = await fetch(`http://127.0.0.1:8000/sessionSeatsAvailable/${sessionId}`, {
+	const res = await apiFetch(`/sessionSeatsAvailable/${sessionId}`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 	});
@@ -129,7 +152,7 @@ export async function fetchNumberOfSeatsAvalable(sessionId: number): Promise<Sea
 }
 
 export async function bookSessionPost(sessionId:number) {
-	const res = await fetch(`http://127.0.0.1:8000/bookSession?session_id=${sessionId}`, {
+	const res = await apiFetch(`/bookSession?session_id=${sessionId}`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include'
@@ -143,7 +166,7 @@ export async function bookSessionPost(sessionId:number) {
 }
 
 export async function fetchPayments(): Promise<PaymentOrderDTO[]| null> {
-	const res = await fetch(`http://127.0.0.1:8000/payments`, {
+	const res = await apiFetch(`/payments`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include'
@@ -158,7 +181,7 @@ export async function fetchPayments(): Promise<PaymentOrderDTO[]| null> {
 }
 
 export async function fetchOrders(): Promise<OrderRelsDTO[]| null> {
-	const res = await fetch(`http://127.0.0.1:8000/orders`, {
+	const res = await apiFetch(`/orders`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include'
@@ -173,7 +196,7 @@ export async function fetchOrders(): Promise<OrderRelsDTO[]| null> {
 }
 
 export async function cancelOrder(order_id: number): Promise<boolean | null> {
-	const res = await fetch(`http://127.0.0.1:8000/order/${order_id}`, {
+	const res = await apiFetch(`/order/${order_id}`, {
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include'
@@ -187,7 +210,7 @@ export async function cancelOrder(order_id: number): Promise<boolean | null> {
 }
 
 export async function makePayment(order_id: number, payment_method: PaymentMethod): Promise<boolean | null> {
-	const res = await fetch(`http://127.0.0.1:8000/order/${order_id}`, {
+	const res = await apiFetch(`/order/${order_id}`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -205,7 +228,7 @@ export async function makePayment(order_id: number, payment_method: PaymentMetho
 
 
 export async function fetchPaymentByOrderId(orderId: number): Promise<PaymentDTO | null> {
-	const res = await fetch(`http://127.0.0.1:8000/payment_by_order/${orderId}`, {
+	const res = await apiFetch(`/payment_by_order/${orderId}`, {
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -220,7 +243,7 @@ export async function fetchPaymentByOrderId(orderId: number): Promise<PaymentDTO
 }
 
 export async function delteUserById(userId:number): Promise<boolean> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/user?user_id=${userId}`,{
+	const res = await apiFetch(`/admin/user?user_id=${userId}`,{
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -234,7 +257,7 @@ export async function delteUserById(userId:number): Promise<boolean> {
 }
 
 export async function fetchMastersAdmin(): Promise<MasterDTO[] | null> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/masters`,{
+	const res = await apiFetch(`/admin/masters`,{
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -245,7 +268,7 @@ export async function fetchMastersAdmin(): Promise<MasterDTO[] | null> {
 }
 
 export async function delteMasterById(masterId:number): Promise<boolean> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/master?master_id=${masterId}`,{
+	const res = await apiFetch(`/admin/master?master_id=${masterId}`,{
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -259,7 +282,7 @@ export async function delteMasterById(masterId:number): Promise<boolean> {
 }
 
 export async function updateMasterById(masterId:number ,master: MasterAddDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/master?master_id=${masterId}`, {
+	const res = await apiFetch(`/admin/master?master_id=${masterId}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -269,7 +292,7 @@ export async function updateMasterById(masterId:number ,master: MasterAddDTO) {
 }
 
 export async function addMasterAdmin(master: MasterAddDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/master`, {
+	const res = await apiFetch(`/admin/master`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -279,7 +302,7 @@ export async function addMasterAdmin(master: MasterAddDTO) {
 }
 
 export async function fetchWorkshopsAdmin(): Promise<WorkshopRelDTO[] | null> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/workshops`,{
+	const res = await apiFetch(`/admin/workshops`,{
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -290,7 +313,7 @@ export async function fetchWorkshopsAdmin(): Promise<WorkshopRelDTO[] | null> {
 }
 
 export async function delteWorkshopById(workshopId:number): Promise<boolean> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/workshop?workshop_id=${workshopId}`,{
+	const res = await apiFetch(`/admin/workshop?workshop_id=${workshopId}`,{
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -304,7 +327,7 @@ export async function delteWorkshopById(workshopId:number): Promise<boolean> {
 }
 
 export async function fetchTechniquesAdmin(): Promise<TechniqueDTO[] | null> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/techniques`,{
+	const res = await apiFetch(`/admin/techniques`,{
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -315,7 +338,7 @@ export async function fetchTechniquesAdmin(): Promise<TechniqueDTO[] | null> {
 }
 
 export async function fetchMaterialsAdmin(): Promise<MaterialDTO[] | null> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/materials`,{
+	const res = await apiFetch(`/admin/materials`,{
 		method: 'GET',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -327,7 +350,7 @@ export async function fetchMaterialsAdmin(): Promise<MaterialDTO[] | null> {
 
 
 export async function addWorkshopAdmin(workshop: WorkshopAddDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/workshop`, {
+	const res = await apiFetch(`/admin/workshop`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -337,7 +360,7 @@ export async function addWorkshopAdmin(workshop: WorkshopAddDTO) {
 }
 
 export async function updateWorkshopById(workshopId:number ,workshop: WorkshopAddDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/workshop?workshop_id=${workshopId}`, {
+	const res = await apiFetch(`/admin/workshop?workshop_id=${workshopId}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -347,7 +370,7 @@ export async function updateWorkshopById(workshopId:number ,workshop: WorkshopAd
 }
 
 export async function addMaterialAdmin(material: MaterialAddDTO): Promise<MaterialDTO | null> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/material`, {
+	const res = await apiFetch(`/admin/material`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -359,7 +382,7 @@ export async function addMaterialAdmin(material: MaterialAddDTO): Promise<Materi
 }
 
 export async function addSetOfMaterialAdmin(setOfMaterial: SetOfMaterialRawDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/setOfMaterial`, {
+	const res = await apiFetch(`/admin/setOfMaterial`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -369,7 +392,7 @@ export async function addSetOfMaterialAdmin(setOfMaterial: SetOfMaterialRawDTO) 
 }
 
 export async function delteSetOfMaterial(setOfMaterial: SetOfMaterialRawDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/setOfMaterial`,{
+	const res = await apiFetch(`/admin/setOfMaterial`,{
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -384,7 +407,7 @@ export async function delteSetOfMaterial(setOfMaterial: SetOfMaterialRawDTO) {
 }
 
 export async function updateSetOfMaterial(setOfMaterial: SetOfMaterialRawDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/setOfMaterial`,{
+	const res = await apiFetch(`/admin/setOfMaterial`,{
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -399,7 +422,7 @@ export async function updateSetOfMaterial(setOfMaterial: SetOfMaterialRawDTO) {
 }
 
 export async function addSessionAdmin(session: ScheduleAddDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/session`, {
+	const res = await apiFetch(`/admin/session`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -409,7 +432,7 @@ export async function addSessionAdmin(session: ScheduleAddDTO) {
 }
 
 export async function delteSessionById(sessionId:number): Promise<boolean> {
-	const res = await fetch(`http://127.0.0.1:8000/admin/session?session_id=${sessionId}`,{
+	const res = await apiFetch(`/admin/session?session_id=${sessionId}`,{
 		method: 'DELETE',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',
@@ -423,7 +446,7 @@ export async function delteSessionById(sessionId:number): Promise<boolean> {
 }
 
 export async function updateSessionById(sessionId:number ,session: ScheduleAddDTO) {
-	const res = await fetch(`http://127.0.0.1:8000/admin/session?session_id=${sessionId}`, {
+	const res = await apiFetch(`/admin/session?session_id=${sessionId}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include',

@@ -39,7 +39,7 @@ export async function load({ params }: {params:any}) {
 			error: error
 		};
 	}
-	const workshop = await fetchWorkshopById(workshopId);
+	const workshop = await fetchWorkshopById(workshopId, true);
 	let sessions;
 	if (workshop != null) {
 		sessions = organizeSchedulesByDate(workshop.sessions);

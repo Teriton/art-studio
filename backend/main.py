@@ -17,6 +17,7 @@ if __name__ == "__main__":
     asyncio.run(main())
     if "--webserver" in sys.argv:
         uvicorn.run(
+            host="0.0.0.0",
             app="main:app",
             reload=True,
         )
