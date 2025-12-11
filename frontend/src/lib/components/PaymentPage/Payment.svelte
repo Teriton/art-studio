@@ -26,15 +26,44 @@
 		cardholderName: ''
 	});
 
+	function formatCardNumber(value: string): string {
+		const cleanCard = value.replace(/\D/g, '');
+		const segments = cleanCard.match(/.{1,4}/g) || [];
+		return segments.join(' ').slice(0, 19); // 16 цифр + 3 пробела = 19 символов
+	}
+
+	function handleCardInput(e: Event) {
+		const target = e.target as HTMLInputElement;
+		const formatted = formatCardNumber(target.value);
+		cardNumber = formatted;
+		target.value = formatted;
+		errors.cardNumber = '';
+	}
+
+	function formatExpiry(value: string): string {
+		const cleanExpiry = value.replace(/\D/g, '');
+		if (cleanExpiry.length === 0) return '';
+		if (cleanExpiry.length === 1) return cleanExpiry;
+		return cleanExpiry.slice(0, 2) + '/' + cleanExpiry.slice(2, 4);
+	}
+
+	function handleExpiryInput(e: Event) {
+		const target = e.target as HTMLInputElement;
+		const formatted = formatExpiry(target.value);
+		cardExpiry = formatted;
+		target.value = formatted;
+		errors.cardExpiry = '';
+	}
+
 	function validateCardFields() {
 		let valid = true;
 		const newErrors = { cardNumber: '', cardExpiry: '', cardCVC: '', cardholderName: '' };
 
 		if (paymentMethod === PaymentMethod.card) {
-			// Проверка номера карты (упрощённо: только цифры и длина 13–19)
+			// Проверка номера карты (16 цифр)
 			const cleanCard = cardNumber.replace(/\D/g, '');
-			if (!/^\d{13,19}$/.test(cleanCard)) {
-				newErrors.cardNumber = 'Неверный номер карты';
+			if (!/^\d{16}$/.test(cleanCard)) {
+				newErrors.cardNumber = 'Номер карты должен содержать 16 цифр';
 				valid = false;
 			}
 
@@ -148,10 +177,12 @@
                 {#if paymentMethod === PaymentMethod.card}
                     <input
                         type="text"
-                        placeholder="Номер карты"
-                        bind:value={cardNumber}
-                        oninput={() => (errors.cardNumber = '')}
-                        class={`w-full rounded-md border px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white/50 ${
+                        placeholder="0000 0000 0000 0000"
+                        value={cardNumber}
+                        oninput={handleCardInput}
+                        maxlength="19"
+                        inputmode="numeric"
+                        class={`w-full rounded-md border px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white/50 font-mono text-lg tracking-widest ${
                             errors.cardNumber ? 'border-red-500' : 'border-gray-300'
                         }`}
                     />
@@ -163,9 +194,10 @@
                         <input
                             type="text"
                             placeholder="MM/YY"
-                            bind:value={cardExpiry}
-                            oninput={() => (errors.cardExpiry = '')}
+                            value={cardExpiry}
+                            oninput={handleExpiryInput}
                             maxlength="5"
+                            inputmode="numeric"
                             class={`flex-1 rounded-md border px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white/50 ${
                                 errors.cardExpiry ? 'border-red-500' : 'border-gray-300'
                             }`}
