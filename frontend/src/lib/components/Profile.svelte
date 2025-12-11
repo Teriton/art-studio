@@ -16,6 +16,14 @@
 	let email = $state('');
 	let phone_number = $state('');
 
+	// errors
+	let errors = $state({
+		email: '',
+		phone_number: '',
+		first_name: '',
+		last_name: ''
+	});
+
 	onMount(async () => {
 		loading = true;
 		error = null;
@@ -43,7 +51,51 @@
 		return ((u.first_name[0] ?? '') + (u.last_name[0] ?? '')).toUpperCase() || 'U';
 	}
 
+	function validateEmail(emailValue: string): boolean {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(emailValue);
+	}
+
+	function validatePhone(phoneValue: string): boolean {
+		const phoneRegex = /^[\d\s\-\+\(\)]+$/;
+		return phoneRegex.test(phoneValue) && phoneValue.replace(/\D/g, '').length >= 10;
+	}
+
+	function validateForm(): boolean {
+		let valid = true;
+		errors = { email: '', phone_number: '', first_name: '', last_name: '' };
+
+		if (!first_name.trim()) {
+			errors.first_name = 'Укажите имя';
+			valid = false;
+		}
+
+		if (!last_name.trim()) {
+			errors.last_name = 'Укажите фамилию';
+			valid = false;
+		}
+
+		if (!email.trim()) {
+			errors.email = 'Укажите email';
+			valid = false;
+		} else if (email && !validateEmail(email)) {
+			errors.email = 'Некорректный формат email';
+			valid = false;
+		}
+
+		if (!phone_number.trim()) {
+			errors.phone_number = 'Укажите телефон';
+			valid = false;
+		} else if (phone_number && !validatePhone(phone_number)) {
+			errors.phone_number = 'Телефон должен содержать минимум 10 цифр';
+			valid = false;
+		}
+
+		return valid;
+	}
+
 	async function save() {
+		if (!validateForm()) return;
 		editing = false;
 		if (!user) return;
 		user.first_name = first_name;
@@ -113,14 +165,54 @@
 				</div>
 
 				{#if editing}
-					<form class="space-y-4" onsubmit={save}>
+					<form class="space-y-4" onsubmit={(e) => { e.preventDefault(); save(); }}>
 						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-							<input class="rounded border p-3" bind:value={first_name} placeholder="Имя" />
-							<input class="rounded border p-3" bind:value={last_name} placeholder="Фамилия" />
+							<div>
+								<input
+									class={`w-full rounded border p-3 ${errors.first_name ? 'border-red-500' : ''}`}
+									bind:value={first_name}
+									placeholder="Имя"
+									oninput={() => (errors.first_name = '')}
+								/>
+								{#if errors.first_name}
+									<p class="mt-1 text-sm text-red-500">{errors.first_name}</p>
+								{/if}
+							</div>
+							<div>
+								<input
+									class={`w-full rounded border p-3 ${errors.last_name ? 'border-red-500' : ''}`}
+									bind:value={last_name}
+									placeholder="Фамилия"
+									oninput={() => (errors.last_name = '')}
+								/>
+								{#if errors.last_name}
+									<p class="mt-1 text-sm text-red-500">{errors.last_name}</p>
+								{/if}
+							</div>
 						</div>
 						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-							<input class="rounded border p-3" bind:value={email} placeholder="Email" />
-							<input class="rounded border p-3" bind:value={phone_number} placeholder="Телефон" />
+							<div>
+								<input
+									class={`w-full rounded border p-3 ${errors.email ? 'border-red-500' : ''}`}
+									bind:value={email}
+									placeholder="Email"
+									oninput={() => (errors.email = '')}
+								/>
+								{#if errors.email}
+									<p class="mt-1 text-sm text-red-500">{errors.email}</p>
+								{/if}
+							</div>
+							<div>
+								<input
+									class={`w-full rounded border p-3 ${errors.phone_number ? 'border-red-500' : ''}`}
+									bind:value={phone_number}
+									placeholder="Телефон"
+									oninput={() => (errors.phone_number = '')}
+								/>
+								{#if errors.phone_number}
+									<p class="mt-1 text-sm text-red-500">{errors.phone_number}</p>
+								{/if}
+							</div>
 						</div>
 
 						<div class="flex gap-3">

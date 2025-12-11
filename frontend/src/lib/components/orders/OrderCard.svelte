@@ -32,6 +32,9 @@
 			<div class="flex flex-col md:flex-row rounded-xl p-3 border-2 border-green-600  md:h-auto flex-1">
 				<h2 class="flex md:h-auto flex-1 items-center justify-center">Оплачено</h2>
 				<h2 class="flex  md:h-auto flex-1 items-center justify-center">Способ оплаты: {order.payment.payment_method == PaymentMethod.card? "картой" : "на месте"}</h2>
+                {#if order.payment.payment_method == PaymentMethod.cash}
+                    <button class="  h-20 md:h-auto flex-1" onclick={()=>{select()}}>Отменить</button>
+                {/if}
 			</div>
 			{/if}
 		</div>
