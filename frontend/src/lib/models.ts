@@ -103,14 +103,12 @@ export interface SetOfMaterialRawDTO {
 	workshop_id: number;
 	material_id: number;
 	quantity: number;
-	unit: string;
 }
 
 export interface SetOfMaterialDTO {
 	workshop_id: number;
 	material_id: number;
 	quantity: number;
-	unit: string;
 	material: MaterialDTO;
 }
 
@@ -119,6 +117,7 @@ export interface MaterialAddDTO {
 	discription: string;
 	cost: number;
 	type: string;
+	unit: string;
 }
 
 export interface MaterialDTO extends MaterialAddDTO {

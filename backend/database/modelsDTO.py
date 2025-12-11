@@ -42,7 +42,6 @@ class SetOfMaterialRawDTO(BaseModel):
     workshop_id: int
     material_id: int
     quantity: int
-    unit:str 
 
 class SetOfMaterialDTO(SetOfMaterialRawDTO):
     material: "MaterialDTO"
@@ -54,6 +53,7 @@ class MaterialAddDTO(BaseModel):
     discription: str
     cost: float
     type: str
+    unit: str
 
 class MaterialDTO(MaterialAddDTO):
     id: int

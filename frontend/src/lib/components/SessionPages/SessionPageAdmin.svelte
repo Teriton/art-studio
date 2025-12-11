@@ -32,14 +32,14 @@
 		setOfMaterialAddForm = {
 			workshop_id: workshopData ? workshopData.id : -1,
 			material_id: -1,
-			quantity: 0,
-			unit: ""
+			quantity: 0
 		};
 		materialAddForm = {
 			name: "",
 			discription: "",
 			cost: 0,
-			type: ""
+			type: "",
+			unit: ""
 		};
 		selectedMaterial = null;
 		materials = await fetchMaterialsAdmin();
@@ -383,7 +383,7 @@
 								<div>
 									<h4 class="text-sm text-gray-500">{set_of_material.material.name}</h4>
 									<p class="text-base text-gray-800">
-										{set_of_material.quantity + ' ' + set_of_material.unit}
+										{set_of_material.quantity + ' ' + set_of_material.material.unit}
 									</p>
 
 								</div>
@@ -491,24 +491,22 @@
 							bind:value={materialAddForm.type}
 							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
 						/>
-					</div>
-				{/if}
-				<div class="grid grid-cols-2 gap-4">
+					</div>		
 					<div>
-						<p class="text-gray-700 font-light">Колличество</p>
+						<p class="text-gray-700 font-light">Еденицы измерения</p>
 						<input
-							type="number"
-							bind:value={setOfMaterialAddForm.quantity}
+							bind:value={materialAddForm.unit}
 							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
 						/>
 					</div>
-					<div>
-						<p class="text-gray-700 font-light">Единицы измерения</p>
-						<input
-							bind:value={setOfMaterialAddForm.unit}
-							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
-							/>
-					</div>
+				{/if}
+				<div>
+					<p class="text-gray-700 font-light">Колличество</p>
+					<input
+						type="number"
+						bind:value={setOfMaterialAddForm.quantity}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+					/>
 				</div>
 				<button
 					onclick={AddSetOfMaterialAddForm}
@@ -545,7 +543,6 @@
 						{selectedMaterial?.name}
 					</h2>
 				</div>
-				<div class="grid grid-cols-2 gap-4">
 					<div>
 						<p class="text-gray-700 font-light">Колличество</p>
 						<input
@@ -554,14 +551,6 @@
 							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
 						/>
 					</div>
-					<div>
-						<p class="text-gray-700 font-light">Единицы измерения</p>
-						<input
-							bind:value={setOfMaterialEditForm.unit}
-							class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
-							/>
-					</div>
-				</div>
 				<div class="flex gap-4">
 					<button
 						onclick={async ()=>{

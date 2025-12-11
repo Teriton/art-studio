@@ -104,7 +104,7 @@
 							<div>
 								<h4 class="text-sm text-gray-500">{set_of_material.material.name}</h4>
 								<p class="text-base text-gray-800">
-									{set_of_material.quantity + ' ' + set_of_material.unit}
+									{set_of_material.quantity + ' ' + set_of_material.material.unit}
 								</p>
 							</div>
 						{/each}

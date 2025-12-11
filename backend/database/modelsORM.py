@@ -98,7 +98,6 @@ class SetOfMaterialORM(Base):
         primary_key=True,
         )
     quantity: Mapped[int]
-    unit: Mapped[str]
 
     workshop: Mapped["WorkshopORM"] = relationship(
         back_populates="sets_of_material"
@@ -118,6 +117,7 @@ class MaterialORM(Base):
     discription: Mapped[str]
     cost: Mapped[float]
     type: Mapped[str]
+    unit: Mapped[str]
 
     set_of_material: Mapped["SetOfMaterialORM"] = relationship(
         back_populates="material"

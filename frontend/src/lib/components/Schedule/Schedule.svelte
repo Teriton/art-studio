@@ -94,39 +94,80 @@
 		transition:fade
 	>
 		<div
-			class="animate-fade-in relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+			class="animate-fade-in relative w-full max-w-2xl rounded-lg bg-white p-8 shadow-xl max-h-[90vh] overflow-y-auto"
 			transition:fly={{ y: 100, duration: 300 }}
 		>
 			<button
-				class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+				class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl"
 				onclick={() => {
 					selectedWorkshop = null;
 				}}>✕</button
 			>
-			<div class="flex flex-col gap-4 md:gap-2">
-				<h2 class="mb-2 text-2xl font-bold">{selectedWorkshop.title}</h2>
-				<p class="text-gray-700">
-					<span class=" text-black">Продолжительность:</span>
-					{selectedWorkshop.duration} минут
-				</p>
-				<p class="text-gray-700">
-					<span class=" text-black">Мастер:</span>
-					{selectedWorkshop.master.first_name + ' ' + selectedWorkshop.master.last_name}
-				</p>
-				<p class="text-gray-700">
-					<span class=" text-black">Сложность:</span>
-					{selectedWorkshop.dificulty}
-				</p>
-				<p class="text-gray-700">
-					<span class=" text-black">Стоимость:</span>
-					{selectedWorkshop.fee}
-				</p>
-				<button
-					class="block w-full border-amber-50 text-center transition-colors"
-					onclick={() => orderPage(selectedWorkshop === null ? null : selectedWorkshop.id)}
-				>
-					Забронировать
-				</button>
+			<div class="flex flex-col gap-4">
+				<h2 class="text-3xl font-bold text-gray-800">{selectedWorkshop.title}</h2>
+				
+				<!-- Описание -->
+				<div class="bg-gray-50 p-4 rounded-lg">
+					<p class="text-gray-700 leading-relaxed">
+						{selectedWorkshop.description}
+					</p>
+				</div>
+
+				<!-- Сетка параметров -->
+				<div class="grid grid-cols-2 gap-4">
+					<div class="bg-red-50 p-4 rounded-lg">
+						<p class="text-sm text-gray-600 font-semibold">Продолжительность</p>
+						<p class="text-lg font-bold text-gray-800">{selectedWorkshop.duration} мин</p>
+					</div>
+					<div class="bg-amber-50 p-4 rounded-lg">
+						<p class="text-sm text-gray-600 font-semibold">Стоимость</p>
+						<p class="text-lg font-bold text-red-600">{selectedWorkshop.fee} ₽</p>
+					</div>
+					<div class="bg-blue-50 p-4 rounded-lg">
+						<p class="text-sm text-gray-600 font-semibold">Сложность</p>
+						<p class="text-lg font-bold text-gray-800">{selectedWorkshop.dificulty}</p>
+					</div>
+					<div class="bg-green-50 p-4 rounded-lg">
+						<p class="text-sm text-gray-600 font-semibold">Статус</p>
+						<p class="text-lg font-bold text-gray-800">{selectedWorkshop.status}</p>
+					</div>
+				</div>
+
+				<!-- Информация о мастере -->
+				<div class="bg-purple-50 p-4 rounded-lg">
+					<h3 class="font-semibold text-gray-800 mb-2">Преподаватель</h3>
+					<p class="text-lg font-bold text-gray-800">
+						{selectedWorkshop.master.first_name} {selectedWorkshop.master.last_name}
+					</p>
+					<p class="text-sm text-gray-600 mt-1">{selectedWorkshop.master.specialization}</p>
+					{#if selectedWorkshop.master.expirience}
+						<p class="text-sm text-gray-600 mt-1">Опыт: {selectedWorkshop.master.expirience} лет</p>
+					{/if}
+				</div>
+
+				<!-- Информация о технике -->
+				<div class="bg-indigo-50 p-4 rounded-lg">
+					<h3 class="font-semibold text-gray-800 mb-2">Техника</h3>
+					<p class="text-lg font-bold text-gray-800">{selectedWorkshop.technique.name}</p>
+				</div>
+
+				<!-- Кнопки действия -->
+				<div class="flex gap-3 mt-6">
+					<button
+						class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+						onclick={() => orderPage(selectedWorkshop === null ? null : selectedWorkshop.id)}
+					>
+						Забронировать
+					</button>
+					<button
+						class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-4 rounded-lg transition-colors"
+						onclick={() => {
+							selectedWorkshop = null;
+						}}
+					>
+						Закрыть
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>

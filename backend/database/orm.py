@@ -56,39 +56,39 @@ class AsyncORM:
                 WorkshopORM(master_id=1, technique_id=11, title="Продвинутая графика", dificulty="Продвинутый", duration=150, fee=320.0, status=Status.unactive, description="Одинадцатый воркшоп в мине супер дупер",image=""),
             ]
             setsofmaterials = [
-                SetOfMaterialORM(workshop_id=1, material_id=1, quantity=123, unit="shtuka"),
-                SetOfMaterialORM(workshop_id=1, material_id=2, quantity=12, unit="shtuka"),
-                SetOfMaterialORM(workshop_id=2, material_id=3, quantity=50, unit="shtuka"),
-                SetOfMaterialORM(workshop_id=3, material_id=4, quantity=5, unit="nabor"),
-                SetOfMaterialORM(workshop_id=3, material_id=5, quantity=10, unit="bank"),
-                SetOfMaterialORM(workshop_id=4, material_id=6, quantity=25, unit="kg"),
-                SetOfMaterialORM(workshop_id=4, material_id=7, quantity=1, unit="shtuka"),
-                SetOfMaterialORM(workshop_id=5, material_id=8, quantity=36, unit="rulon"),
-                SetOfMaterialORM(workshop_id=5, material_id=9, quantity=3, unit="bank"),
-                SetOfMaterialORM(workshop_id=6, material_id=10, quantity=15, unit="meter"),
-                SetOfMaterialORM(workshop_id=6, material_id=11, quantity=8, unit="shtuka"),
-                SetOfMaterialORM(workshop_id=7, material_id=12, quantity=20, unit="shtuka"),
-                SetOfMaterialORM(workshop_id=8, material_id=13, quantity=40, unit="kg"),
-                SetOfMaterialORM(workshop_id=9, material_id=14, quantity=30, unit="shtuka"),
-                SetOfMaterialORM(workshop_id=10, material_id=15, quantity=100, unit="meter"),
+                SetOfMaterialORM(workshop_id=1, material_id=1, quantity=123),
+                SetOfMaterialORM(workshop_id=1, material_id=2, quantity=12),
+                SetOfMaterialORM(workshop_id=2, material_id=3, quantity=50),
+                SetOfMaterialORM(workshop_id=3, material_id=4, quantity=5),
+                SetOfMaterialORM(workshop_id=3, material_id=5, quantity=10),
+                SetOfMaterialORM(workshop_id=4, material_id=6, quantity=25),
+                SetOfMaterialORM(workshop_id=4, material_id=7, quantity=1),
+                SetOfMaterialORM(workshop_id=5, material_id=8, quantity=36),
+                SetOfMaterialORM(workshop_id=5, material_id=9, quantity=3),
+                SetOfMaterialORM(workshop_id=6, material_id=10, quantity=15),
+                SetOfMaterialORM(workshop_id=6, material_id=11, quantity=8),
+                SetOfMaterialORM(workshop_id=7, material_id=12, quantity=20),
+                SetOfMaterialORM(workshop_id=8, material_id=13, quantity=40),
+                SetOfMaterialORM(workshop_id=9, material_id=14, quantity=30),
+                SetOfMaterialORM(workshop_id=10, material_id=15, quantity=100),
             ]
 
             materials = [
-                MaterialORM(name="Kistochka", discription="Palka s volosami", cost=2.22, type="Atomnaya bomba"),
-                MaterialORM(name="Sharik", discription="Ochen krugli", cost=3.44, type="Atomnaya bomba"),
-                MaterialORM(name="Волейбольный мяч", discription="Стандартный волейбольный мяч", cost=45.50, type="Спортивный инвентарь"),
-                MaterialORM(name="Набор масляных красок", discription="Базовый набор из 12 цветов", cost=120.0, type="Художественные материалы"),
-                MaterialORM(name="Разбавитель для масляных красок", discription="Специальный растворитель", cost=25.0, type="Химия"),
-                MaterialORM(name="Глина для лепки", discription="Обожженная глина 5кг", cost=15.75, type="Сырье"),
-                MaterialORM(name="Гончарный круг", discription="Электрический гончарный круг", cost=2500.0, type="Оборудование"),
-                MaterialORM(name="Фотопленка 35mm", discription="Черно-белая фотопленка", cost=8.90, type="Фотоматериалы"),
-                MaterialORM(name="Проявитель для пленки", discription="Химический раствор", cost=12.30, type="Химия"),
-                MaterialORM(name="Шелковая ткань", discription="Натуральный шелк для батика", cost=45.0, type="Текстиль"),
-                MaterialORM(name="Резервирующий состав", discription="Состав для контуров в батике", cost=18.50, type="Химия"),
-                MaterialORM(name="Каллиграфическое перо", discription="Перо с держателем", cost=15.0, type="Инструмент"),
-                MaterialORM(name="Детская глина", discription="Безопасная глина для детей", cost=8.25, type="Сырье"),
-                MaterialORM(name="Акварельные краски", discription="Набор детских акварельных красок", cost=35.0, type="Художественные материалы"),
-                MaterialORM(name="Алюминиевая проволока", discription="Гибкая проволока для скульптур", cost=3.20, type="Металл"),
+                MaterialORM(name="Kistochka", discription="Palka s volosami", cost=2.22, type="Atomnaya bomba", unit="шт."),
+                MaterialORM(name="Sharik", discription="Ochen krugli", cost=3.44, type="Atomnaya bomba", unit="shtuka"),
+                MaterialORM(name="Волейбольный мяч", discription="Стандартный волейбольный мяч", cost=45.50, type="Спортивный инвентарь", unit="shtuka"),
+                MaterialORM(name="Набор масляных красок", discription="Базовый набор из 12 цветов", cost=120.0, type="Художественные материалы", unit="nabor"),
+                MaterialORM(name="Разбавитель для масляных красок", discription="Специальный растворитель", cost=25.0, type="Химия", unit="bank"),
+                MaterialORM(name="Глина для лепки", discription="Обожженная глина 5кг", cost=15.75, type="Сырье", unit="kg"),
+                MaterialORM(name="Гончарный круг", discription="Электрический гончарный круг", cost=2500.0, type="Оборудование", unit="shtuka"),
+                MaterialORM(name="Фотопленка 35mm", discription="Черно-белая фотопленка", cost=8.90, type="Фотоматериалы", unit="rulon"),
+                MaterialORM(name="Проявитель для пленки", discription="Химический раствор", cost=12.30, type="Химия", unit="bank"),
+                MaterialORM(name="Шелковая ткань", discription="Натуральный шелк для батика", cost=45.0, type="Текстиль", unit="meter"),
+                MaterialORM(name="Резервирующий состав", discription="Состав для контуров в батике", cost=18.50, type="Химия", unit="shtuka"),
+                MaterialORM(name="Каллиграфическое перо", discription="Перо с держателем", cost=15.0, type="Инструмент", unit="shtuka"),
+                MaterialORM(name="Детская глина", discription="Безопасная глина для детей", cost=8.25, type="Сырье", unit="kg"),
+                MaterialORM(name="Акварельные краски", discription="Набор детских акварельных красок", cost=35.0, type="Художественные материалы", unit="shtuka"),
+                MaterialORM(name="Алюминиевая проволока", discription="Гибкая проволока для скульптур", cost=3.20, type="Металл", unit="meter"),
             ]
             schedules = [
                 # Текущие даты
@@ -587,8 +587,8 @@ class AsyncORM:
                 name = material.name,
                 discription = material.discription,
                 cost = material.cost,
-                type = material.type
-
+                type = material.type,
+                unit = material.unit
             )
             session.add(material_orm)
             await session.commit()
@@ -627,7 +627,6 @@ class AsyncORM:
                 workshop_id = set_of_material.workshop_id,
                 material_id = set_of_material.material_id,
                 quantity = set_of_material.quantity,
-                unit = set_of_material.unit
             )
             session.add(set_of_material_orm)
             await session.commit()
@@ -660,7 +659,6 @@ class AsyncORM:
                 return False
             
             set_of_material_orm.quantity = set_of_material.quantity
-            set_of_material_orm.unit = set_of_material.unit
 
             await session.commit()
 
