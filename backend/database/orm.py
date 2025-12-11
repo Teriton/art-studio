@@ -43,17 +43,17 @@ class AsyncORM:
                 TechniqueORM(name="Пастель", discription="Рисование сухими и масляными пастельными мелками"),
             ]
             workshops = [
-                WorkshopORM(master_id=1, technique_id=1, title="Perfaracia", dificulty="Bolno", duration=120, fee=120.0, status=Status.active),
-                WorkshopORM(master_id=2, technique_id=2, title="Мячик бегает вертится крутитстя тебя пиздит", dificulty="Весело", duration=5, fee=99.0, status=Status.active),
-                WorkshopORM(master_id=3, technique_id=3, title="Масляная живопись для начинающих", dificulty="Начальный", duration=180, fee=250.0, status=Status.active),
-                WorkshopORM(master_id=4, technique_id=4, title="Гончарное искусство", dificulty="Средний", duration=240, fee=350.0, status=Status.active),
-                WorkshopORM(master_id=5, technique_id=5, title="Фотография на пленку", dificulty="Продвинутый", duration=120, fee=200.0, status=Status.active),
-                WorkshopORM(master_id=1, technique_id=6, title="Батик: роспись по шелку", dificulty="Средний", duration=210, fee=280.0, status=Status.active),
-                WorkshopORM(master_id=2, technique_id=7, title="Каллиграфия пером", dificulty="Начальный", duration=90, fee=150.0, status=Status.active),
-                WorkshopORM(master_id=3, technique_id=8, title="Семейный мастер-класс по лепке", dificulty="Легкий", duration=120, fee=180.0, status=Status.active),
-                WorkshopORM(master_id=4, technique_id=9, title="Детская акварель", dificulty="Детский", duration=60, fee=100.0, status=Status.active),
-                WorkshopORM(master_id=5, technique_id=10, title="Скульптура из проволоки", dificulty="Сложный", duration=300, fee=420.0, status=Status.canceled),
-                WorkshopORM(master_id=1, technique_id=11, title="Продвинутая графика", dificulty="Продвинутый", duration=150, fee=320.0, status=Status.unactive),
+                WorkshopORM(master_id=1, technique_id=1, title="Perfaracia", dificulty="Bolno", duration=120, fee=120.0, status=Status.active, description="Первый воркшоп в мине супер дупер",image="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2FcjGhq7n8KX4%2Fmaxresdefault.jpg&f=1&nofb=1&ipt=13a184570f00256ee66621b265dbea383abef6bad0b651cac52f4e610e259cd5"),
+                WorkshopORM(master_id=2, technique_id=2, title="Мячик бегает вертится крутитстя тебя пиздит", dificulty="Весело", duration=5, fee=99.0, status=Status.active, description="Второй воркшоп в мине супер дупер",image="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2FzRbecLgzjeQ%2Fmaxresdefault.jpg&f=1&nofb=1&ipt=4fd4de64bae1c29ac151f6424e6dae5830a71dfcd582ba8064231c363e3640d9"),
+                WorkshopORM(master_id=3, technique_id=3, title="Масляная живопись для начинающих", dificulty="Начальный", duration=180, fee=250.0, status=Status.active, description="Третиий воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=4, technique_id=4, title="Гончарное искусство", dificulty="Средний", duration=240, fee=350.0, status=Status.active, description="Четвертый воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=5, technique_id=5, title="Фотография на пленку", dificulty="Продвинутый", duration=120, fee=200.0, status=Status.active, description="Fivth воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=1, technique_id=6, title="Батик: роспись по шелку", dificulty="Средний", duration=210, fee=280.0, status=Status.active, description="Шестой воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=2, technique_id=7, title="Каллиграфия пером", dificulty="Начальный", duration=90, fee=150.0, status=Status.active, description="Седьмой воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=3, technique_id=8, title="Семейный мастер-класс по лепке", dificulty="Легкий", duration=120, fee=180.0, status=Status.active, description="Восьмой воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=4, technique_id=9, title="Детская акварель", dificulty="Детский", duration=60, fee=100.0, status=Status.active, description="Девятый воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=5, technique_id=10, title="Скульптура из проволоки", dificulty="Сложный", duration=300, fee=420.0, status=Status.canceled, description="Десятый воркшоп в мине супер дупер",image=""),
+                WorkshopORM(master_id=1, technique_id=11, title="Продвинутая графика", dificulty="Продвинутый", duration=150, fee=320.0, status=Status.unactive, description="Одинадцатый воркшоп в мине супер дупер",image=""),
             ]
             setsofmaterials = [
                 SetOfMaterialORM(workshop_id=1, material_id=1, quantity=123, unit="shtuka"),
@@ -553,7 +553,9 @@ class AsyncORM:
                 dificulty = workshop.dificulty,
                 duration = workshop.duration,
                 fee = workshop.fee,
-                status = workshop.status
+                status = workshop.status,
+                description = workshop.description,
+                image = workshop.image
             )
             session.add(workshop_orm)
             await session.commit()
@@ -611,6 +613,8 @@ class AsyncORM:
             workshop_orm.duration = workshop.duration
             workshop_orm.fee = workshop.fee
             workshop_orm.status = workshop.status
+            workshop_orm.description = workshop.description
+            workshop_orm.image = workshop.image
 
             await session.commit()
 

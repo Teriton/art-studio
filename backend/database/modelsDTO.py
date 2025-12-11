@@ -10,6 +10,8 @@ class WorkshopAddDTO(BaseModel):
     duration: int
     fee: float
     status: Status
+    description: str
+    image: str
 
 class WorkshopDTO(WorkshopAddDTO):
     id: int

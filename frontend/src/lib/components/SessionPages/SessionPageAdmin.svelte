@@ -265,6 +265,10 @@
 								onclick={() => {workshopData = workshopBuf; workshopEditForm = null; }}><i class="fa-solid fa-xmark"></i>Отменить</button>
 					</div>
 					<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
+						<div class="col-span-2 md:row-span-3 md:col-span-1 flex flex-col gap-2">
+							<input class="text-base text-gray-800 rounded" bind:value={workshopEditForm.image}/>
+							<img class="h-30 md:h-60 w-full object-cover shadow-xl" src={workshopEditForm.image} alt="Фото отсутствует или не опознано">
+						</div>
 						<div>
 							<h4 class="text-sm text-gray-500">Мастер</h4>
 							<select name="masters" bind:value={selectedMaster}
@@ -308,6 +312,12 @@
 							</select>
 						</div>
 					</div>
+					<div class="my-4">
+						<h2 class="mx-4 mb-6 text-2xl md:text-2xl text-black md:mb-0">
+							Описание
+						</h2>
+						<textarea class="mx-4 w-full mt-1" bind:value={workshopEditForm.description}></textarea>
+					</div>
 				{:else}
 					<div class="flex">
 						<h1 class="md:text-1xl mx-4 mb-6 text-3xl font-semibold text-black md:mb-0">
@@ -317,6 +327,11 @@
 								onclick={async () => {await editWorkshopForm()}}><i class="fa-regular fa-pen-to-square"></i>Редактировать</button>
 					</div>
 					<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
+						{#if workshopData?.image}
+							<div class="col-span-2 md:row-span-3 md:col-span-1">
+								<img class="h-80 md:h-60 w-full object-cover shadow-xl" src={workshopData?.image} alt="Фото отсутствует или не опознано">
+							</div>
+						{/if}
 						<div>
 							<h4 class="text-sm text-gray-500">Мастер</h4>
 							<p class="text-base text-gray-800">
@@ -343,6 +358,12 @@
 							<h4 class="text-sm text-gray-500">Статус</h4>
 							<p class="text-base text-gray-800">{workshopData?.status}</p>
 						</div>
+					</div>
+					<div class="my-4">
+						<h2 class="mx-4 mb-6 text-2xl md:text-2xl text-black md:mb-0">
+							Описание
+						</h2>
+						<p class="mx-4 mt-1 ">{workshopData?.description}</p>
 					</div>
 				{/if}
 				<div class="flex items-center">

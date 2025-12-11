@@ -34,8 +34,9 @@
 			dificulty: "",
 			duration: 0,
 			fee: 0,
-			status: Status.unactive
-
+			status: Status.unactive,
+			description: "",
+			image: ""
 		};
 
 		masters = await fetchMastersAdmin()
@@ -147,7 +148,7 @@
 
 {#if addWorkshopForm}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300"
+		class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 transition-opacity duration-300"
 		transition:fade
 	>
 		<div
@@ -211,6 +212,27 @@
 							<option value={technique}>{technique.name}</option>
 						{/each}
 					</select>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Описание</p>
+					<textarea
+						bind:value={addWorkshopForm.description}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"
+						></textarea>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Обложка мастеркласса</p>
+					<input
+						bind:value={addWorkshopForm.image}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"/>
+					{#if addWorkshopForm.image }
+						<div class="flex m-10 justify-center">
+							<img 
+								src={addWorkshopForm.image}
+								alt="Фото не опознано"
+								class="h-50 w-auto">
+						</div>
+					{/if}
 				</div>
 				<button
 					class="w-full mt-2 bg-gray-200/80"

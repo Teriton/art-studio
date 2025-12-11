@@ -40,6 +40,11 @@
 					{data.workshop?.title}
 				</h1>
 				<div class="m-4 grid grid-cols-2 items-center gap-10 md:grid-cols-3">
+					{#if data.workshop?.image != ""}
+						<div class="col-span-2 md:row-span-3 md:col-span-1">
+							<img class="h-80 md:h-60 w-full object-cover shadow-xl" src={data.workshop?.image} alt="Hello">
+						</div>
+					{/if}
 					<div>
 						<h4 class="text-sm text-gray-500">Мастер</h4>
 						<p class="text-base text-gray-800">
@@ -67,6 +72,10 @@
 						<p class="text-base text-gray-800">{data.workshop?.status}</p>
 					</div>
 				</div>
+				<h2 class="mx-4 my-6 mb-10 text-2xl font-semibold text-black md:my-4 md:mb-0 md:text-xl">
+					Описание
+				</h2>
+				<p class="mx-4 ">{data.workshop?.description}</p>
 				<h2 class="mx-4 my-6 mb-10 text-2xl font-semibold text-black md:my-4 md:mb-0 md:text-xl">
 					Необходимые материалы
 				</h2>

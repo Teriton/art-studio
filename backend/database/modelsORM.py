@@ -54,6 +54,8 @@ class WorkshopORM(Base):
     duration: Mapped[int]
     fee: Mapped[float]
     status: Mapped[Status]
+    description: Mapped[str]
+    image: Mapped[str]
 
     master: Mapped["MasterORM"] = relationship(
         back_populates="workshops"

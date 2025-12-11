@@ -19,6 +19,8 @@ export interface WorkshopAddDTO {
 	duration: number;
 	fee: number;
 	status: Status;
+	description: string;
+    image: string;
 }
 
 export interface WorkshopDTO extends WorkshopAddDTO {
