@@ -4,7 +4,7 @@
 	import SectionWraper from './SectionWraper.svelte';
 	import { fetchMasters } from '$lib/api/api';
 
-	let { masters } = $props();
+	let { masters } : { masters:MasterDTO[]} = $props();
 
 	// const masters = [
 	//   {
@@ -58,7 +58,7 @@
 						class="max-w-80 min-w-[250px] rounded-xl bg-linear-to-br from-pink-100 to-yellow-100 shadow-md transition-transform duration-300 hover:scale-105"
 					>
 						<img
-							src="https://tse3.mm.bing.net/th/id/OIP.TaiypjChKJsZJOwD7D-jygHaED?rs=1&pid=ImgDetMain&o=7&rm=3"
+							src={master.image ? master.image : "assets/anon.png"}
 							alt={master.first_name + ' ' + master.last_name}
 							class="h-60 w-full rounded-lg object-cover"
 						/>

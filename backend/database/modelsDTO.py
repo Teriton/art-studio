@@ -75,6 +75,7 @@ class MasterAddDTO(BaseModel):
     specialization: str
     expirience: int
     bio: str
+    image: str
 
 class MasterDTO(MasterAddDTO):
     id: int

@@ -21,11 +21,11 @@ class AsyncORM:
     async def insert_starting_data():
         async with async_session_factory() as session:
             masters = [
-                MasterORM(first_name="Vitaly", last_name="Antoshka", specialization="Танцы на стекле", expirience=30, bio="Покоритель подиумов и мастер боли. Любит чай с бергамотом."),
-                MasterORM(first_name="Anton", last_name="Avl", specialization="Флиртология", expirience=32, bio="Профессор романтических наук. Может соблазнить даже Wi-Fi роутер."),
-                MasterORM(first_name="Марго", last_name="Хрусталева", specialization="Мыть окна", expirience=12, bio="Крутая тётка, моет окна так, что птицы теряют ориентацию."),
-                MasterORM(first_name="Сергей", last_name="Пельменев", specialization="Кулинарный гипноз", expirience=20, bio="Готовит борщ, после которого люди начинают говорить по-французски."),
-                MasterORM(first_name="Люба", last_name="Звездная", specialization="Астропсихология", expirience=25, bio="Совмещает гороскопы с психоанализом. Знает, почему ты не отвечаешь на сообщения."),
+                MasterORM(first_name="Vitaly", last_name="Antoshka", specialization="Танцы на стекле", expirience=30, bio="Покоритель подиумов и мастер боли. Любит чай с бергамотом.", image="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.booska-p.com%2Fwp-content%2Fuploads%2F2014%2F11%2Fbrblockryder-reprends-hot-nigga-video-649.jpg&f=1&nofb=1&ipt=2ec66e194e9920b33e65d6ad0ff5de51a5640f5921e3385ae34954101bbab3c6"),
+                MasterORM(first_name="Anton", last_name="Avl", specialization="Флиртология", expirience=32, bio="Профессор романтических наук. Может соблазнить даже Wi-Fi роутер.", image="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F0c%2Fab%2Fe8%2F0cabe8036fe675e5bbfe1145c8f51e65.jpg&f=1&nofb=1&ipt=95dd68f1ebb3b5a680a18c90055b088ee8fa8b25e4818edc7a72577366ce9535"),
+                MasterORM(first_name="Марго", last_name="Хрусталева", specialization="Мыть окна", expirience=12, bio="Крутая тётка, моет окна так, что птицы теряют ориентацию.", image="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2F736x%2Fd5%2Fb3%2Fb0%2Fd5b3b0c84c051d9e37dbaffb55d1b027.jpg&f=1&nofb=1&ipt=f4fbdf66696da46b6b991f9897a37e06c3d1a1a1087c17682766c5ce04282738"),
+                MasterORM(first_name="Сергей", last_name="Пельменев", specialization="Кулинарный гипноз", expirience=20, bio="Готовит борщ, после которого люди начинают говорить по-французски.", image="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ffatboyjacked.com%2Fwp-content%2Fuploads%2F2023%2F09%2Foverweight-fat-man-sports-clothing-is-running-with-determination-striving-lose-fat-regain-vitality-ai-generated-scaled.jpg&f=1&nofb=1&ipt=5446cef89c1489d2f31cbad0612ccedf64b05a4ef80ece3f3cf72b7c3fa05406"),
+                MasterORM(first_name="Люба", last_name="Звездная", specialization="Астропсихология", expirience=25, bio="Совмещает гороскопы с психоанализом. Знает, почему ты не отвечаешь на сообщения.", image=""),
             ]
 
             techniques = [
@@ -508,6 +508,7 @@ class AsyncORM:
             master_orm.specialization = master.specialization
             master_orm.expirience = master.expirience
             master_orm.bio = master.bio
+            master_orm.image = master.image
 
             await session.commit()
 
@@ -521,7 +522,8 @@ class AsyncORM:
                 last_name=master.last_name,
                 specialization = master.specialization,
                 expirience = master.expirience,
-                bio = master.bio
+                bio = master.bio,
+                image = master.image
             )
             session.add(master_orm)
             await session.commit()

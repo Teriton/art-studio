@@ -37,6 +37,7 @@ declare module '$env/static/private' {
 	export const XDG_CONFIG_DIRS: string;
 	export const VSCODE_DEBUGPY_ADAPTER_ENDPOINTS: string;
 	export const npm_config_cache: string;
+	export const NIX_LD_LIBRARY_PATH: string;
 	export const XDG_SESSION_PATH: string;
 	export const TERM_PROGRAM_VERSION: string;
 	export const WLR_NO_HARDWARE_CURSORS: string;
@@ -105,6 +106,7 @@ declare module '$env/static/private' {
 	export const USER: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
 	export const TZDIR: string;
+	export const NIX_LD: string;
 	export const HYPRLAND_INSTANCE_SIGNATURE: string;
 	export const DISPLAY: string;
 	export const npm_lifecycle_event: string;
@@ -186,6 +188,7 @@ declare module '$env/dynamic/private' {
 		XDG_CONFIG_DIRS: string;
 		VSCODE_DEBUGPY_ADAPTER_ENDPOINTS: string;
 		npm_config_cache: string;
+		NIX_LD_LIBRARY_PATH: string;
 		XDG_SESSION_PATH: string;
 		TERM_PROGRAM_VERSION: string;
 		WLR_NO_HARDWARE_CURSORS: string;
@@ -254,6 +257,7 @@ declare module '$env/dynamic/private' {
 		USER: string;
 		VSCODE_GIT_IPC_HANDLE: string;
 		TZDIR: string;
+		NIX_LD: string;
 		HYPRLAND_INSTANCE_SIGNATURE: string;
 		DISPLAY: string;
 		npm_lifecycle_event: string;

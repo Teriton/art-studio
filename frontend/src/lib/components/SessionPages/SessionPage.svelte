@@ -148,7 +148,7 @@
 				</p>
 				<p class="text-gray-700">
 					<span class=" text-black">Колличество мест:</span>
-					{seats.allSeats}/{seats.occupiedSeats}
+					{seats.occupiedSeats}/{seats.allSeats}
 				</p>
 				{#if availableSeats}
 					<button

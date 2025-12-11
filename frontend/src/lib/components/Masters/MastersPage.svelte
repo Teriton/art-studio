@@ -33,7 +33,8 @@
 			last_name: "",
 			specialization: "",
 			expirience: 0,
-			bio: ""
+			bio: "",
+			image: "",
 		};
 	}
 
@@ -185,6 +186,18 @@
 						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none">
 					</textarea>
 				</div>
+				<div>
+					<p class="text-gray-700 font-light">Фото мастера</p>
+					<input
+						bind:value={selectedMaster.image}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"/>
+					<div class="flex m-10 justify-center">
+						<img 
+							src={selectedMaster.image ? selectedMaster.image : "/assets/anon.png"}
+							alt="Фото не опознано"
+							class="h-50 w-auto">
+					</div>
+				</div>
 				<button
 					onclick={save}
 					class="w-full mt-2 bg-gray-200/80"
@@ -251,6 +264,18 @@
 						bind:value={addMasterForm.bio}
 						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none">
 					</textarea>
+				</div>
+				<div>
+					<p class="text-gray-700 font-light">Фото мастера</p>
+					<input
+						bind:value={addMasterForm.image}
+						class="w-full rounded-md border border-gray-300 bg-white/50 px-4 py-3 focus:ring-2 focus:ring-amber-400 focus:outline-none"/>
+					<div class="flex m-10 justify-center">
+						<img 
+							src={addMasterForm.image ? addMasterForm.image : "/assets/anon.png"} 
+							alt="Фото не опознано"
+							class="h-50 w-auto">
+					</div>
 				</div>
 				<button
 					class="w-full mt-2 bg-gray-200/80"

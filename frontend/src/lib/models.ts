@@ -44,6 +44,7 @@ export interface MasterAddDTO {
 	specialization: string;
 	expirience: number;
 	bio: string;
+	image: string;
 }
 
 export interface MasterDTO extends MasterAddDTO {

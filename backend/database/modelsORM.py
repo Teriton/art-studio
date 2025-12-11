@@ -36,6 +36,7 @@ class MasterORM(Base):
     specialization: Mapped[str]
     expirience: Mapped[int]
     bio: Mapped[str]
+    image: Mapped[str]
 
     workshops: Mapped[list["WorkshopORM"]] = relationship(
         back_populates="master",
