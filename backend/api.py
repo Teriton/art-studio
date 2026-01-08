@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import Cookie, FastAPI, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
@@ -129,13 +129,14 @@ def create_fastapi_app():
                 headers={"WWW-Authenticate": "Bearer"},
             )
         acess_token_exprice = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_at = datetime.now(timezone.utc) + acess_token_exprice
         acess_token = create_access_token(data={"sub": user.login},expires_delta=acess_token_exprice ) # type: ignore
         # response = JSONResponse(jsonable_encoder(Token(access_token=acess_token,token_type="bearer")))
         response = JSONResponse({"ok": True})
         response.set_cookie(
             key="access_token",
             value=acess_token,
-            expires=acess_token_exprice, # type: ignore
+            expires=expires_at, # type: ignore
             httponly=True,
             samesite="lax"
         )
@@ -161,11 +162,18 @@ def create_fastapi_app():
     async def signup(user: modelsDTO.UserAddDTO):
         existing_user = await AsyncORM.get_user_by_login(user.login)
         if existing_user:
-            raise HTTPException(status_code=400, detail="Login already registered")
+            raise HTTPException(status_code=412, detail="Login already registered")
         user.psw = password_hash.hash(user.psw)
         new_user = await AsyncORM.add_user(user)
         await broadcast_users()
         return new_user
+    
+    @app.post("/isLoginAvailable", tags=["Регистрация"])
+    async def signup(login: str):
+        existing_user = await AsyncORM.get_user_by_login(login)
+        if existing_user:
+            return JSONResponse({"answer": False})
+        return JSONResponse({"answer": True})
 
 
     @app.get("/user/info", tags=["Пользователь"])
